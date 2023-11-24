@@ -1,0 +1,5 @@
+git_repo_url: "git@github.com:FairPnP/backend.git"
+git_repo_branch: master
+git_repo_path: "{{ ansible_env.HOME }}/backend"
+api_service_project_path: "{{ git_repo_path }}/api-service"
+migration_path: "{{ api_service_project_path }}/migrations"

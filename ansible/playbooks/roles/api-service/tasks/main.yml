@@ -1,0 +1,57 @@
+---
+
+- name: Ensure logs directory exists
+  ansible.builtin.file:
+    path: "{{ log_dir }}"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Clone or update git repository
+  ansible.builtin.git:
+    repo: "{{ git_repo_url }}"
+    dest: "{{ ansible_env.HOME }}/fairpnp"
+    version: "{{ git_repo_branch }}"
+    update: true
+  register: git_repo
+  become: false
+
+- name: Build project using Cargo if changes were pulled # noqa: no-handler
+  ansible.builtin.command: cargo build --release
+  args:
+    chdir: "{{ ansible_env.HOME }}/fairpnp/api-service"
+  when: git_repo is changed
+  become: false
+
+- name: Configure api-service systemd service
+  ansible.builtin.template:
+    src: "api-service.service.j2"
+    dest: "/etc/systemd/system/api-service.service"
+    mode: '0644'
+  become: true
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Stop api-service if it's running
+  ansible.builtin.systemd:
+    name: api-service
+    state: stopped
+  become: true
+
+- name: Move the generated binary to the systemd service location
+  ansible.builtin.copy:
+    src: "{{ ansible_env.HOME }}/fairpnp/api-service/target/release/api-service"
+    dest: "/usr/local/bin/api-service"
+    remote_src: true
+    mode: '0755'
+  become: true
+
+- name: Start api-service
+  ansible.builtin.systemd:
+    name: api-service
+    state: started
+    enabled: true
+  become: true

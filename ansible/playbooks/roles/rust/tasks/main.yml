@@ -1,0 +1,43 @@
+---
+
+- name: Install Development Tools
+  ansible.builtin.yum:
+    name: "@Development Tools"
+    state: present
+  become: true
+
+- name: Check if Cargo is already installed
+  ansible.builtin.command: command -v cargo
+  register: cargo_exists
+  ignore_errors: true
+  changed_when: false
+
+- name: Download and install rustup
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup.sh
+    mode: '0755'
+  become: false
+  when: cargo_exists.rc != 0
+
+- name: Execute the rustup script
+  ansible.builtin.shell:
+    cmd: sh /tmp/rustup.sh -y
+    executable: /bin/bash
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
+  become: false
+  when: cargo_exists.rc != 0
+
+- name: Set environment variables for current session
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.profile"
+    line: 'export PATH="$HOME/.cargo/bin:$PATH"'
+    create: true
+    mode: "0644"
+  become: false
+  when: cargo_exists.rc != 0
+
+- name: Update rustup
+  ansible.builtin.command: rustup update
+  changed_when: false
+  become: false

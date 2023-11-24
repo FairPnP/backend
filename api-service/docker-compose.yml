@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      target: local
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/api
+      AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_s6BLMDS8z
+      AUTH_JWKS_URL: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_s6BLMDS8z/.well-known/jwks.json
+      MIGRATIONS_PATH: ./migrations
+    volumes:
+      - ./src:/usr/src/api-service/src
+      - cargo_registry:/usr/local/cargo/registry
+      - cargo_git:/usr/local/cargo/git
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5432:5432'
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
+  cargo_registry:
+  cargo_git:

@@ -1,0 +1,2 @@
+[api-server]
+3.14.135.100 ansible_host=fairpnp-dev-api

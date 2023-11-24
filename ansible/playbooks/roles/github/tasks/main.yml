@@ -1,0 +1,54 @@
+---
+
+- name: Install git
+  ansible.builtin.yum:
+    name: git
+    state: present
+  become: true
+
+- name: Ensure .ssh directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: "0700"
+    owner: "{{ ansible_env.USER }}"
+  become: false
+
+- name: Add GitHub private key
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.ssh/id_rsa_github"
+    content: "{{ github_private_key }}"
+    mode: "0600"
+    owner: "{{ ansible_env.USER }}"
+  become: false
+
+- name: Add ssh key to agent
+  ansible.builtin.command: ssh-add "{{ ansible_env.HOME }}/.ssh/id_rsa_github"
+  args:
+    creates: "{{ ansible_env.HOME }}/.ssh/id_rsa_github"
+  become: false
+
+- name: Add GitHub to known hosts
+  ansible.builtin.known_hosts:
+    name: github.com
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+  become: false
+
+- name: Set SSH keyscan for GitHub
+  ansible.builtin.shell: ssh-keyscan -H github.com >> "{{ ansible_env.HOME }}/.ssh/known_hosts"
+  args:
+    creates: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+  become: false
+
+- name: Configure SSH to use the key only for GitHub
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    block: |
+      Host github.com
+        HostName github.com
+        IdentityFile ~/.ssh/id_rsa_github
+        IdentitiesOnly yes
+    create: true
+    mode: "0600"
+  become: false

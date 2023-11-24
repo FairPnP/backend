@@ -1,0 +1,20 @@
+[Unit]
+Description=API Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/api-service
+Restart=on-failure
+User=ec2-user
+Group=ec2-user
+Environment="HOME={{ ansible_env.HOME }}"
+Environment="DATABASE_URL={{ postgres_db_url }}"
+Environment="AUTH_ISSUER={{ auth_issuer }}"
+Environment="AUTH_JWKS_URL={{ auth_jwks_url }}"
+Environment="MIGRATIONS_PATH={{ migration_path }}"
+StandardOutput=append:{{ log_dir }}/api-service.log
+StandardError=append:{{ log_dir }}/api-service.error.log
+
+[Install]
+WantedBy=multi-user.target

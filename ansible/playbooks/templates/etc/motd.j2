@@ -1,0 +1,20 @@
+{% set border_width = 70 %}
+{% set server_info = "Hostname: " + ansible_hostname %}
+{% set system_uptime = "Uptime: " + ansible_uptime_seconds | string %}
+{% set system_time = "Current Time: " + ansible_date_time.iso8601 %}
+{% set disk_usage = "Disk Usage: " + ansible_mounts[0].size_total | string %}
+{% set memory_usage = "Memory Usage: " + ansible_memory_mb.real.total | string + " MB" %}
+{% set cpu_status = "CPU Load: " + ansible_processor_vcpus | string %}
+{% set longest_line = [motd_welcome_message, server_info, system_uptime, system_time, disk_usage, memory_usage, cpu_status] | map('length') | max %}
+{% set padding = border_width - longest_line - 2 %}
+{% set border = '+' + '-' * (border_width - 2) + '+' %}
+
+{{ border }}
+|{{ motd_welcome_message.ljust(border_width - 2) }}|
+|{{ server_info.ljust(border_width - 2) }}|
+|{{ system_uptime.ljust(border_width - 2) }}|
+|{{ system_time.ljust(border_width - 2) }}|
+|{{ disk_usage.ljust(border_width - 2) }}|
+|{{ memory_usage.ljust(border_width - 2) }}|
+|{{ cpu_status.ljust(border_width - 2) }}|
+{{ border }}

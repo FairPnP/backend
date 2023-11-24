@@ -1,0 +1,7 @@
+---
+
+- name: Install PostgreSQL development libraries
+  ansible.builtin.yum:
+    name: postgresql-devel
+    state: present
+  become: true

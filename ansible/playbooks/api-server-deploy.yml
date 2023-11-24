@@ -1,0 +1,14 @@
+---
+- name: Api-server-deploy
+  hosts: api-server
+  handlers:
+    - name: Import handlers
+      ansible.builtin.import_tasks: handlers/main.yml
+  gather_facts: true
+  vars_files:
+    - ../environments/cross_env_vars.yml
+    - ../environments/{{ ENV }}/group_vars/all/env_vars.yml
+    - ../environments/{{ ENV }}/group_vars/all/env_vault.yml
+  roles:
+    - api-service
+  remote_user: ec2-user
