@@ -1,15 +1,6 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    boards (id) {
-        id -> Int4,
-        team_id -> Uuid,
-        #[max_length = 255]
-        name -> Varchar,
-    }
-}
-
-diesel::table! {
     building_user_parking_spaces (id) {
         id -> Int4,
         building_user_id -> Int4,
@@ -63,11 +54,7 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(building_user_parking_spaces -> building_users (building_user_id));
-diesel::joinable!(building_users -> buildings (building_id));
-
 diesel::allow_tables_to_appear_in_same_query!(
-    boards,
     building_user_parking_spaces,
     building_users,
     buildings,

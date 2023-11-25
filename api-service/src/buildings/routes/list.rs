@@ -1,76 +1,68 @@
-use crate::board::entities::Board;
+use crate::buildings::entities::{Building, PublicBuilding};
 use crate::db::{get_db_connection, DbPool};
 use crate::error::ServiceError;
-use crate::schema::boards::dsl;
-use crate::users::get_user_id;
-use actix_web::{get, web, HttpRequest, HttpResponse};
+use crate::schema::buildings::dsl;
+use actix_web::{get, web, HttpResponse};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 // ======================================================================
 // DTOs
 
-#[derive(Debug, Serialize)]
-pub struct ListBoardsResponse {
-    pub boards: Vec<Board>,
-    pub next_cursor: Option<i32>,
-    pub current_limit: i64,
-}
-
 #[derive(Deserialize)]
 pub struct PaginationParams {
-    after: Option<i32>,
+    offset_id: Option<i32>,
     limit: Option<i64>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ListBuildingsResponse {
+    pub buildings: Vec<PublicBuilding>,
+    pub next_offset_id: Option<i32>,
+    pub limit: i64,
 }
 
 // ======================================================================
 // Route
 
 #[get("")]
-pub async fn list_boards(
-    req: HttpRequest,
+pub async fn list_buildings(
     pool: web::Data<DbPool>,
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse, ServiceError> {
-    let user_id = get_user_id(&req)?;
-
-    let limit = query.limit.unwrap_or(10);
-    let boards = get_boards_by_team_id(&pool, user_id, query.after, limit)?;
-    let next_cursor = if boards.len() as i64 == limit {
-        boards.last().map(|b| b.id)
+    // limit default to 10, max 20
+    let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
+    let buildings = get_buildings_by_team_id(&pool, query.offset_id, limit)?;
+    let next_offset_id = if buildings.len() as i64 == limit {
+        buildings.last().map(|b| b.id)
     } else {
         None
     };
 
-    Ok(HttpResponse::Ok().json(ListBoardsResponse {
-        boards,
-        next_cursor,
-        current_limit: limit,
+    Ok(HttpResponse::Ok().json(ListBuildingsResponse {
+        buildings: buildings.into_iter().map(PublicBuilding::from).collect(),
+        next_offset_id,
+        limit,
     }))
 }
 
 // ======================================================================
 // Database operations
 
-fn get_boards_by_team_id(
+fn get_buildings_by_team_id(
     pool: &DbPool,
-    team_id: Uuid,
-    after: Option<i32>,
+    offset_id: Option<i32>,
     limit: i64,
-) -> Result<Vec<Board>, ServiceError> {
+) -> Result<Vec<Building>, ServiceError> {
     let mut conn = get_db_connection(pool)?;
-    let mut query = dsl::boards
-        .filter(dsl::team_id.eq(team_id))
-        .order(dsl::id.asc())
-        .into_boxed();
+    let mut query = dsl::buildings.order(dsl::id.asc()).into_boxed();
 
-    if let Some(after) = after {
-        query = query.filter(dsl::id.gt(after));
+    if let Some(offset_id) = offset_id {
+        query = query.filter(dsl::id.gt(offset_id));
     }
 
     query
         .limit(limit)
-        .load::<Board>(&mut conn)
+        .load::<Building>(&mut conn)
         .map_err(From::from)
 }

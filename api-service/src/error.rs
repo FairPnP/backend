@@ -9,6 +9,7 @@ pub enum ServiceError {
     DatabaseError(String),
     InternalError(String),
     Unauthorized,
+    BadRequest(String),
 }
 
 impl From<diesel::result::Error> for ServiceError {
@@ -40,6 +41,7 @@ impl ResponseError for ServiceError {
                 HttpResponse::InternalServerError().json(message)
             }
             ServiceError::Unauthorized => HttpResponse::Unauthorized().finish(),
+            ServiceError::BadRequest(ref message) => HttpResponse::BadRequest().json(message),
         }
     }
 
@@ -58,6 +60,7 @@ impl fmt::Display for ServiceError {
             ServiceError::DatabaseError(ref message) => write!(f, "Database Error: {}", message),
             ServiceError::InternalError(ref message) => write!(f, "Internal Error: {}", message),
             ServiceError::Unauthorized => write!(f, "Unauthorized"),
+            ServiceError::BadRequest(ref message) => write!(f, "Bad Request: {}", message),
         }
     }
 }

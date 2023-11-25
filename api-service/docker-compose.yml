@@ -8,8 +8,8 @@ services:
       - '3000:3000'
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/api
-      AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_s6BLMDS8z
-      AUTH_JWKS_URL: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_s6BLMDS8z/.well-known/jwks.json
+      AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
+      AUTH_JWKS_URL: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
       MIGRATIONS_PATH: ./migrations
     volumes:
       - ./src:/usr/src/api-service/src

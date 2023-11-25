@@ -1,9 +1,9 @@
-use crate::board::entities::{Board, NewBoard};
+use crate::buildings::entities::{Building, NewBuilding, PublicBuilding};
 use crate::db::{get_db_connection, DbPool};
 use crate::error::ServiceError;
-use crate::schema::boards::dsl;
-use crate::users::get_user_id;
-use actix_web::{post, web, HttpRequest, HttpResponse};
+use crate::schema::buildings::dsl;
+use actix_web::{post, web, HttpResponse};
+use bigdecimal::BigDecimal;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -11,41 +11,46 @@ use serde::{Deserialize, Serialize};
 // DTOs
 
 #[derive(Debug, Deserialize)]
-pub struct CreateBoardRequest {
+pub struct CreateBuildingRequest {
     pub name: String,
+    pub place_id: String,
+    pub latitude: BigDecimal,
+    pub longitude: BigDecimal,
 }
 
 #[derive(Debug, Serialize)]
-pub struct CreateBoardResponse {
-    pub board: Board,
+pub struct CreateBuildingResponse {
+    pub building: PublicBuilding,
 }
 
 // ======================================================================
 // Route
 
 #[post("")]
-pub async fn create_board(
-    req: HttpRequest,
+pub async fn create_building(
     pool: web::Data<DbPool>,
-    data: web::Json<CreateBoardRequest>,
+    data: web::Json<CreateBuildingRequest>,
 ) -> Result<HttpResponse, ServiceError> {
-    let user_id = get_user_id(&req)?;
-    let new_board = NewBoard {
-        team_id: user_id,
+    let new_building = NewBuilding {
         name: data.name.clone(),
+        latitude: data.latitude.clone(),
+        longitude: data.longitude.clone(),
+        place_id: data.place_id.clone(),
     };
 
-    let board = insert_new_board(&pool, new_board)?;
-    Ok(HttpResponse::Created().json(CreateBoardResponse { board }))
+    let building = insert_new_building(&pool, new_building)?;
+    Ok(HttpResponse::Created().json(CreateBuildingResponse {
+        building: building.into(),
+    }))
 }
 
 // ======================================================================
 // Database operations
 
-fn insert_new_board(pool: &DbPool, new_board: NewBoard) -> Result<Board, ServiceError> {
+fn insert_new_building(pool: &DbPool, new_building: NewBuilding) -> Result<Building, ServiceError> {
     let mut conn = get_db_connection(pool)?;
-    diesel::insert_into(dsl::boards)
-        .values(&new_board)
+    diesel::insert_into(dsl::buildings)
+        .values(&new_building)
         .get_result(&mut conn)
         .map_err(From::from)
 }

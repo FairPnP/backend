@@ -8,11 +8,11 @@ mod update;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/boards")
-            .service(create::create_board)
-            .service(read::read_board)
-            .service(update::update_board)
-            .service(delete::delete_board)
-            .service(list::list_boards),
+        web::scope("/buildings/v1")
+            .service(create::create_building)
+            .service(read::read_building)
+            .service(update::update_building)
+            .service(delete::delete_building)
+            .service(list::list_buildings),
     );
 }

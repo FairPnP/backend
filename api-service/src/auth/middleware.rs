@@ -9,12 +9,6 @@ pub async fn jwt_validator(
     req: ServiceRequest,
     credentials: BearerAuth,
 ) -> Result<ServiceRequest, (Error, ServiceRequest)> {
-    println!("path {}", req.path());
-    if req.path().starts_with("/health") {
-        // Bypass auth for health checks
-        return Ok(req);
-    }
-
     // Get the JwtValidatorState from the app data
     let state = req
         .app_data::<Data<Arc<JwtValidatorState>>>()

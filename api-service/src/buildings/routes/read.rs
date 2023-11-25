@@ -1,7 +1,8 @@
+use crate::buildings::entities::PublicBuilding;
 use crate::db::DbPool;
 use crate::error::ServiceError;
-use crate::schema::boards::dsl;
-use crate::{board::entities::Board, db::get_db_connection};
+use crate::schema::buildings::dsl;
+use crate::{buildings::entities::Building, db::get_db_connection};
 use actix_web::{get, web, HttpResponse};
 use diesel::prelude::*;
 use serde::Serialize;
@@ -10,29 +11,31 @@ use serde::Serialize;
 // DTOs
 
 #[derive(Debug, Serialize)]
-pub struct ReadBoardResponse {
-    board: Board,
+pub struct ReadBuildingResponse {
+    building: PublicBuilding,
 }
 
 // ======================================================================
 // Route
 
 #[get("/{id}")]
-pub async fn read_board(
+pub async fn read_building(
     pool: web::Data<DbPool>,
-    board_id: web::Path<i32>,
+    building_id: web::Path<i32>,
 ) -> Result<HttpResponse, ServiceError> {
-    let board = get_board_by_id(&pool, board_id.into_inner())?;
-    Ok(HttpResponse::Ok().json(ReadBoardResponse { board }))
+    let building = get_building_by_id(&pool, building_id.into_inner())?;
+    Ok(HttpResponse::Ok().json(ReadBuildingResponse {
+        building: building.into(),
+    }))
 }
 
 // ======================================================================
 // Database operations
 
-fn get_board_by_id(pool: &DbPool, board_id: i32) -> Result<Board, ServiceError> {
+fn get_building_by_id(pool: &DbPool, building_id: i32) -> Result<Building, ServiceError> {
     let mut conn = get_db_connection(pool)?;
-    dsl::boards
-        .find(board_id)
+    dsl::buildings
+        .find(building_id)
         .get_result(&mut conn)
         .map_err(From::from)
 }
