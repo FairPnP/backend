@@ -1,9 +1,7 @@
 use super::super::entities::{Building, PublicBuilding};
-use crate::db::{get_db_connection, DbPool};
+use crate::db::DbPool;
 use crate::error::ServiceError;
-use crate::schema::buildings::dsl;
 use actix_web::{get, web, HttpResponse};
-use diesel::prelude::*;
 use serde::Serialize;
 
 // ======================================================================
@@ -22,7 +20,7 @@ pub async fn read_building(
     pool: web::Data<DbPool>,
     building_id: web::Path<i32>,
 ) -> Result<HttpResponse, ServiceError> {
-    let building = get_building_by_id(&pool, building_id.into_inner())?;
+    let building = get_building_by_id(&pool, building_id.into_inner()).await?;
     Ok(HttpResponse::Ok().json(ReadBuildingResponse {
         building: building.into(),
     }))
@@ -31,10 +29,10 @@ pub async fn read_building(
 // ======================================================================
 // Database operations
 
-fn get_building_by_id(pool: &DbPool, building_id: i32) -> Result<Building, ServiceError> {
-    let mut conn = get_db_connection(pool)?;
-    dsl::buildings
-        .find(building_id)
-        .get_result(&mut conn)
-        .map_err(From::from)
+async fn get_building_by_id(pool: &DbPool, building_id: i32) -> Result<Building, ServiceError> {
+    let building = sqlx::query_as::<_, Building>("SELECT * FROM buildings WHERE id = $1")
+        .bind(building_id)
+        .fetch_one(pool)
+        .await?;
+    Ok(building)
 }

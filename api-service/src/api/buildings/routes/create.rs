@@ -1,10 +1,8 @@
-use super::super::entities::{Building, NewBuilding, PublicBuilding};
-use crate::db::{get_db_connection, DbPool};
+use crate::api::buildings::entities::{Building, PublicBuilding};
+use crate::db::DbPool;
 use crate::error::ServiceError;
-use crate::schema::buildings::dsl;
 use actix_web::{post, web, HttpResponse};
 use bigdecimal::BigDecimal;
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 // ======================================================================
@@ -31,14 +29,14 @@ pub async fn create_building(
     pool: web::Data<DbPool>,
     data: web::Json<CreateBuildingRequest>,
 ) -> Result<HttpResponse, ServiceError> {
-    let new_building = NewBuilding {
-        name: data.name.clone(),
-        latitude: data.latitude.clone(),
-        longitude: data.longitude.clone(),
-        place_id: data.place_id.clone(),
-    };
-
-    let building = insert_new_building(&pool, new_building)?;
+    let building = insert_new_building(
+        pool.get_ref(),
+        data.name.to_owned(),
+        data.place_id.to_owned(),
+        data.latitude.to_owned(),
+        data.longitude.to_owned(),
+    )
+    .await?;
     Ok(HttpResponse::Created().json(CreateBuildingResponse {
         building: building.into(),
     }))
@@ -47,10 +45,20 @@ pub async fn create_building(
 // ======================================================================
 // Database operations
 
-fn insert_new_building(pool: &DbPool, new_building: NewBuilding) -> Result<Building, ServiceError> {
-    let mut conn = get_db_connection(pool)?;
-    diesel::insert_into(dsl::buildings)
-        .values(&new_building)
-        .get_result(&mut conn)
-        .map_err(From::from)
+pub async fn insert_new_building(
+    pool: &DbPool,
+    name: String,
+    place_id: String,
+    latitude: BigDecimal,
+    longitude: BigDecimal,
+) -> Result<Building, sqlx::Error> {
+    let building = sqlx::query_as::<_, Building>(
+        "INSERT INTO buildings (name, place_id, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING *")
+        .bind(&name)
+        .bind(&place_id)
+        .bind(latitude)
+        .bind(longitude)
+        .fetch_one(pool)
+        .await?.into();
+    Ok(building)
 }

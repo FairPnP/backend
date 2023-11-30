@@ -18,7 +18,6 @@ mod auth;
 mod db;
 mod error;
 mod health;
-mod schema;
 mod users;
 
 #[actix_web::main]
@@ -26,7 +25,7 @@ async fn main() -> std::io::Result<()> {
     // Initialize logging
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();
 
-    let pool = establish_connection();
+    let pool = establish_connection().await;
     let jwt_issuer = std::env::var("AUTH_ISSUER").expect("AUTH_ISSUER must be set");
     let jwks_uri = std::env::var("AUTH_JWKS_URL").expect("AUTH_JWKS_URL must be set");
     let jwt_validator_state = JwtValidatorState::new(jwt_issuer, jwks_uri);

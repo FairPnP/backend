@@ -1,10 +1,8 @@
-use super::super::entities::{Building, PublicBuilding, UpdateBuilding};
-use crate::db::{get_db_connection, DbPool};
+use super::super::entities::{Building, PublicBuilding};
+use crate::db::DbPool;
 use crate::error::ServiceError;
-use crate::schema::buildings::dsl;
 use actix_web::{put, web, HttpResponse};
 use bigdecimal::BigDecimal;
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 // ======================================================================
@@ -33,14 +31,16 @@ pub async fn update_building(
     data: web::Json<UpdateBuildingRequest>,
 ) -> Result<HttpResponse, ServiceError> {
     let building_id = building_id.into_inner();
-    let update_data = UpdateBuilding {
-        name: data.name.clone(),
-        place_id: data.place_id.clone(),
-        latitude: data.latitude.clone(),
-        longitude: data.longitude.clone(),
-    };
 
-    let updated_building = update_existing_building(&pool, building_id, update_data)?;
+    let updated_building = update_existing_building(
+        &pool,
+        building_id,
+        data.name.to_owned(),
+        data.place_id.to_owned(),
+        data.latitude.to_owned(),
+        data.longitude.to_owned(),
+    )
+    .await?;
     Ok(HttpResponse::Ok().json(UpdateBuildingResponse {
         building: updated_building.into(),
     }))
@@ -49,14 +49,23 @@ pub async fn update_building(
 // ======================================================================
 // Database operations
 
-fn update_existing_building(
+async fn update_existing_building(
     pool: &DbPool,
     building_id: i32,
-    update_data: UpdateBuilding,
+    name: Option<String>,
+    place_id: Option<String>,
+    latitude: Option<BigDecimal>,
+    longitude: Option<BigDecimal>,
 ) -> Result<Building, ServiceError> {
-    let mut conn = get_db_connection(pool)?;
-    diesel::update(dsl::buildings.find(building_id))
-        .set(&update_data)
-        .get_result(&mut conn)
-        .map_err(From::from)
+    let building = sqlx::query_as::<_, Building>(
+        "UPDATE buildings SET name = COALESCE($1, name), place_id = COALESCE($2, place_id), latitude = COALESCE($3, latitude), longitude = COALESCE($4, longitude) WHERE id = $5 RETURNING *")
+        .bind(name)
+        .bind(place_id)
+        .bind(latitude)
+        .bind(longitude)
+        .bind(building_id)
+        .fetch_one(pool)
+        .await?;
+
+    Ok(building)
 }

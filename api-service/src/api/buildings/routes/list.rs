@@ -1,9 +1,7 @@
 use super::super::entities::{Building, PublicBuilding};
-use crate::db::{get_db_connection, DbPool};
+use crate::db::DbPool;
 use crate::error::ServiceError;
-use crate::schema::buildings::dsl;
 use actix_web::{get, web, HttpResponse};
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 // ======================================================================
@@ -34,7 +32,7 @@ pub async fn list_buildings(
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
     let buildings =
-        get_buildings_by_team_id(&pool, query.offset_id, limit, query.place_id.clone())?;
+        get_buildings_by_team_id(&pool, query.offset_id, limit, query.place_id.clone()).await?;
     let next_offset_id = if buildings.len() as i64 == limit {
         buildings.last().map(|b| b.id)
     } else {
@@ -51,25 +49,33 @@ pub async fn list_buildings(
 // ======================================================================
 // Database operations
 
-fn get_buildings_by_team_id(
+async fn get_buildings_by_team_id(
     pool: &DbPool,
     offset_id: Option<i32>,
     limit: i64,
     place_id: Option<String>, // Add this parameter
 ) -> Result<Vec<Building>, ServiceError> {
-    let mut conn = get_db_connection(pool)?;
-    let mut query = dsl::buildings.order(dsl::id.asc()).into_boxed();
+    let mut query = String::from("SELECT * FROM buildings");
 
-    if let Some(offset_id) = offset_id {
-        query = query.filter(dsl::id.gt(offset_id));
-    }
-
+    let mut conditions = vec![];
     if let Some(ref pid) = place_id {
-        query = query.filter(dsl::place_id.eq(pid));
+        conditions.push(format!("place_id = '{}'", pid));
+    }
+    if let Some(oid) = offset_id {
+        conditions.push(format!("id > {}", oid));
     }
 
-    query
-        .limit(limit)
-        .load::<Building>(&mut conn)
-        .map_err(From::from)
+    if !conditions.is_empty() {
+        query.push_str(" WHERE ");
+        query.push_str(&conditions.join(" AND "));
+    }
+
+    query.push_str(&format!(" ORDER BY id ASC LIMIT {}", limit));
+
+    let buildings = sqlx::query_as::<_, Building>(&query)
+        .fetch_all(pool)
+        .await
+        .map_err(ServiceError::from)?;
+
+    Ok(buildings)
 }

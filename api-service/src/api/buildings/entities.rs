@@ -1,14 +1,12 @@
-use bigdecimal::BigDecimal;
 use chrono::NaiveDateTime;
-use diesel::prelude::*;
-use serde::Deserialize;
 use serde::Serialize;
+use sqlx::types::BigDecimal;
+use sqlx::FromRow;
 
 // ======================================================================
 // DB Entity
 
-#[derive(Debug, Queryable, Insertable, Identifiable)]
-#[diesel(table_name = crate::schema::buildings)]
+#[derive(Debug, FromRow)]
 pub struct Building {
     pub id: i32,
     pub name: String,
@@ -41,25 +39,4 @@ impl From<Building> for PublicBuilding {
             longitude: building.longitude,
         }
     }
-}
-
-// ======================================================================
-// DB Operations
-
-#[derive(Debug, Deserialize, Insertable)]
-#[diesel(table_name = crate::schema::buildings)]
-pub struct NewBuilding {
-    pub name: String,
-    pub place_id: String,
-    pub latitude: BigDecimal,
-    pub longitude: BigDecimal,
-}
-
-#[derive(AsChangeset)]
-#[diesel(table_name = crate::schema::buildings)]
-pub struct UpdateBuilding {
-    pub name: Option<String>,
-    pub place_id: Option<String>,
-    pub latitude: Option<BigDecimal>,
-    pub longitude: Option<BigDecimal>,
 }
