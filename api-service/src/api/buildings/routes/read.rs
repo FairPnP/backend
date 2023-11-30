@@ -1,8 +1,7 @@
-use crate::buildings::entities::PublicBuilding;
-use crate::db::DbPool;
+use super::super::entities::{Building, PublicBuilding};
+use crate::db::{get_db_connection, DbPool};
 use crate::error::ServiceError;
 use crate::schema::buildings::dsl;
-use crate::{buildings::entities::Building, db::get_db_connection};
 use actix_web::{get, web, HttpResponse};
 use diesel::prelude::*;
 use serde::Serialize;

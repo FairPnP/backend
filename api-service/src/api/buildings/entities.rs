@@ -4,6 +4,9 @@ use diesel::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 
+// ======================================================================
+// DB Entity
+
 #[derive(Debug, Queryable, Insertable, Identifiable)]
 #[diesel(table_name = crate::schema::buildings)]
 pub struct Building {
@@ -15,6 +18,9 @@ pub struct Building {
     pub last_modified: NaiveDateTime,
     pub created_at: NaiveDateTime,
 }
+
+// ======================================================================
+// Public Entity
 
 #[derive(Debug, Serialize)]
 pub struct PublicBuilding {
@@ -36,6 +42,9 @@ impl From<Building> for PublicBuilding {
         }
     }
 }
+
+// ======================================================================
+// DB Operations
 
 #[derive(Debug, Deserialize, Insertable)]
 #[diesel(table_name = crate::schema::buildings)]

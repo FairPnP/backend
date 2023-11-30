@@ -13,10 +13,9 @@ use tracing::Level;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber;
 
+mod api;
 mod auth;
-mod buildings;
 mod db;
-mod dev;
 mod error;
 mod health;
 mod schema;
@@ -48,8 +47,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/api")
                     .app_data(Data::new(jwt_validator_state.clone()))
                     .wrap(HttpAuthentication::bearer(jwt_validator))
-                    .configure(buildings::routes::config)
-                    .configure(dev::config),
+                    .configure(api::config),
             )
     })
     .bind(server_bind_address)?

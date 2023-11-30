@@ -1,4 +1,4 @@
-use crate::buildings::entities::{Building, PublicBuilding, UpdateBuilding};
+use super::super::entities::{Building, PublicBuilding, UpdateBuilding};
 use crate::db::{get_db_connection, DbPool};
 use crate::error::ServiceError;
 use crate::schema::buildings::dsl;
