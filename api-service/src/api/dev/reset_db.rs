@@ -34,6 +34,7 @@ pub async fn reset_database(
     let mut script_results = String::new();
 
     // Run the down.sql script
+    println!("reset_db {}", &path);
     let down_script =
         fs::read_to_string(format!("{}/down.sql", path)).expect("Failed to read down script");
     let statements = down_script.split(";"); // Simple split by semicolon
