@@ -1,6 +1,5 @@
 use crate::{db::DbPool, error::ServiceError};
 use actix_web::{post, web, HttpResponse};
-use sqlx::Executor;
 use std::{collections::HashMap, fs};
 
 #[post("reset-database/{table_name}")]
@@ -13,6 +12,7 @@ pub async fn reset_database(
 
     // map table name to migration path
     let table_map = HashMap::from([
+        ("shared", "00000000000001_shared"),
         ("buildings", "2023-11-23-203951_create_buildings"),
         ("building_users", "2023-11-23-204859_create_building_users"),
         ("user_profiles", "2023-11-23-204915_create_user_profiles"),
@@ -34,7 +34,6 @@ pub async fn reset_database(
     let mut script_results = String::new();
 
     // Run the down.sql script
-    println!("reset_db {}", &path);
     let down_script =
         fs::read_to_string(format!("{}/down.sql", path)).expect("Failed to read down script");
     let statements = down_script.split(";"); // Simple split by semicolon

@@ -10,7 +10,7 @@
 - name: Clone or update git repository
   ansible.builtin.git:
     repo: "{{ git_repo_url }}"
-    dest: "{{ ansible_env.HOME }}/fairpnp"
+    dest: "{{ git_repo_path }}"
     version: "{{ git_repo_branch }}"
     update: true
   register: git_repo
