@@ -1,9 +1,12 @@
-use super::super::entities::{Building, PublicBuilding};
-use crate::db::DbPool;
-use crate::error::ServiceError;
+use crate::{
+    db::{buildings::BuildingDb, DbPool},
+    error::ServiceError,
+};
 use actix_web::{put, web, HttpResponse};
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
+
+use super::public::PublicBuilding;
 
 // ======================================================================
 // DTOs
@@ -32,7 +35,7 @@ pub async fn update_building(
 ) -> Result<HttpResponse, ServiceError> {
     let building_id = building_id.into_inner();
 
-    let updated_building = update_existing_building(
+    let updated_building = BuildingDb::update(
         &pool,
         building_id,
         data.name.to_owned(),
@@ -44,28 +47,4 @@ pub async fn update_building(
     Ok(HttpResponse::Ok().json(UpdateBuildingResponse {
         building: updated_building.into(),
     }))
-}
-
-// ======================================================================
-// Database operations
-
-async fn update_existing_building(
-    pool: &DbPool,
-    building_id: i32,
-    name: Option<String>,
-    place_id: Option<String>,
-    latitude: Option<BigDecimal>,
-    longitude: Option<BigDecimal>,
-) -> Result<Building, ServiceError> {
-    let building = sqlx::query_as::<_, Building>(
-        "UPDATE buildings SET name = COALESCE($1, name), place_id = COALESCE($2, place_id), latitude = COALESCE($3, latitude), longitude = COALESCE($4, longitude) WHERE id = $5 RETURNING *")
-        .bind(name)
-        .bind(place_id)
-        .bind(latitude)
-        .bind(longitude)
-        .bind(building_id)
-        .fetch_one(pool)
-        .await?;
-
-    Ok(building)
 }

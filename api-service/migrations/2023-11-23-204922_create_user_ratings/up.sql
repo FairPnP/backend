@@ -10,7 +10,7 @@ CREATE TABLE user_ratings (
 CREATE INDEX idx_user_ratings_on_user_id ON user_ratings(user_id);
 CREATE INDEX idx_user_ratings_on_rated_by_user_id ON user_ratings(rated_by_user_id);
 
-CREATE TRIGGER update_building_modtime
+CREATE TRIGGER update_user_rating_modtime
 BEFORE UPDATE ON user_ratings
 FOR EACH ROW
 EXECUTE FUNCTION update_last_modified_column();

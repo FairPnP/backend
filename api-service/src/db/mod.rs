@@ -6,6 +6,9 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 pub type DbPool = Pool<Postgres>;
 
+pub mod buildings;
+pub mod spaces;
+
 pub async fn establish_connection() -> DbPool {
     dotenv::dotenv().ok();
 

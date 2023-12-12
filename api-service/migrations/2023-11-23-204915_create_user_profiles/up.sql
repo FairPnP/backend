@@ -9,7 +9,7 @@ CREATE TABLE user_profiles (
 
 CREATE INDEX idx_user_profiles_on_user_id ON user_profiles(user_id);
 
-CREATE TRIGGER update_building_modtime
+CREATE TRIGGER update_user_profile_modtime
 BEFORE UPDATE ON user_profiles
 FOR EACH ROW
 EXECUTE FUNCTION update_last_modified_column();

@@ -13,6 +13,7 @@ services:
       MIGRATIONS_PATH: ./migrations
     volumes:
       - ./src:/usr/src/api-service/src
+      - ./migrations:/usr/src/api-service/migrations
       - cargo_registry:/usr/local/cargo/registry
       - cargo_git:/usr/local/cargo/git
     depends_on:

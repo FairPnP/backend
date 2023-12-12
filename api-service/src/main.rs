@@ -18,7 +18,6 @@ mod auth;
 mod db;
 mod error;
 mod health;
-mod users;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

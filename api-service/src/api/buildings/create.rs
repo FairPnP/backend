@@ -1,9 +1,12 @@
-use crate::api::buildings::entities::{Building, PublicBuilding};
-use crate::db::DbPool;
-use crate::error::ServiceError;
+use crate::{
+    db::{buildings::BuildingDb, DbPool},
+    error::ServiceError,
+};
 use actix_web::{post, web, HttpResponse};
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
+
+use super::public::PublicBuilding;
 
 // ======================================================================
 // DTOs
@@ -29,7 +32,7 @@ pub async fn create_building(
     pool: web::Data<DbPool>,
     data: web::Json<CreateBuildingRequest>,
 ) -> Result<HttpResponse, ServiceError> {
-    let building = insert_new_building(
+    let building = BuildingDb::insert(
         pool.get_ref(),
         data.name.to_owned(),
         data.place_id.to_owned(),
@@ -40,25 +43,4 @@ pub async fn create_building(
     Ok(HttpResponse::Created().json(CreateBuildingResponse {
         building: building.into(),
     }))
-}
-
-// ======================================================================
-// Database operations
-
-pub async fn insert_new_building(
-    pool: &DbPool,
-    name: String,
-    place_id: String,
-    latitude: BigDecimal,
-    longitude: BigDecimal,
-) -> Result<Building, sqlx::Error> {
-    let building = sqlx::query_as::<_, Building>(
-        "INSERT INTO buildings (name, place_id, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING *")
-        .bind(&name)
-        .bind(&place_id)
-        .bind(latitude)
-        .bind(longitude)
-        .fetch_one(pool)
-        .await?.into();
-    Ok(building)
 }

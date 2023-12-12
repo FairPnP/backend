@@ -2,7 +2,7 @@ use actix_web::Error;
 use alcoholic_jwt::{token_kid, validate, Validation, JWKS};
 use uuid::Uuid;
 
-use crate::users::User;
+use super::user::User;
 
 pub fn validate_token(token: &str, issuer: String, jwks: JWKS) -> Result<Option<User>, Error> {
     let validations: Vec<Validation> = vec![Validation::Issuer(issuer), Validation::SubjectPresent];

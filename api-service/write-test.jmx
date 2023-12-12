@@ -31,7 +31,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{ &quot;team_id&quot;: 1, &quot;name&quot;: &quot;${__RandomString(10,abcdefghijklmnopqrstuvwxyz,)}&quot; }</stringProp>
+                <stringProp name="Argument.value">{ &quot;user_id&quot;: 1, &quot;name&quot;: &quot;${__RandomString(10,abcdefghijklmnopqrstuvwxyz,)}&quot; }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
