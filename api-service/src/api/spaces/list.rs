@@ -1,20 +1,25 @@
 use crate::{
+    api::validation::validate_req_data,
     auth::user::get_user_id,
     db::{spaces::SpaceDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use super::public::PublicSpace;
 
 // ======================================================================
 // DTOs
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct PaginationParams {
+    #[validate(range(min = 1))]
     offset_id: Option<i32>,
+    #[validate(range(min = 1))]
     limit: Option<i64>,
+    #[validate(length(min = 8, max = 20))]
     building_id: Option<String>,
     user: Option<bool>,
 }
@@ -35,6 +40,7 @@ pub async fn list_spaces(
     pool: web::Data<DbPool>,
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse, ServiceError> {
+    let query = validate_req_data(query.into_inner())?;
     let user_id = get_user_id(&req)?;
     // default to user_id, but allow override
     let user = match query.user {

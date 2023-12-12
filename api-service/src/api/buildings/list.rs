@@ -1,19 +1,23 @@
 use crate::{
+    api::validation::validate_req_data,
     db::{buildings::BuildingDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use super::public::PublicBuilding;
 
 // ======================================================================
 // DTOs
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct PaginationParams {
     offset_id: Option<i32>,
     limit: Option<i64>,
+    // TODO: validate place_id
+    #[validate(length(min = 8, max = 20))]
     place_id: Option<String>,
 }
 
@@ -32,6 +36,8 @@ pub async fn list_buildings(
     pool: web::Data<DbPool>,
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse, ServiceError> {
+    let query = validate_req_data(query.into_inner())?;
+
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
     let buildings = BuildingDb::list(&pool, query.offset_id, limit, query.place_id.clone()).await?;
