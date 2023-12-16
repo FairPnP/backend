@@ -1,5 +1,6 @@
 use crate::{
     api::validation::validate_req_data,
+    auth::user::get_user_id,
     db::{spaces::SpaceDb, DbPool},
     error::ServiceError,
 };
@@ -30,12 +31,14 @@ pub struct UpdateSpaceResponse {
 pub async fn update_space(
     pool: web::Data<DbPool>,
     space_id: web::Path<i32>,
+    req: actix_web::HttpRequest,
     data: web::Json<UpdateSpaceRequest>,
 ) -> Result<HttpResponse, ServiceError> {
+    let user_id = get_user_id(&req)?;
     let data = validate_req_data(data.into_inner())?;
     let space_id = space_id.into_inner();
 
-    let updated_space = SpaceDb::update(&pool, space_id, data.name.to_owned()).await?;
+    let updated_space = SpaceDb::update(&pool, user_id, space_id, data.name.to_owned()).await?;
     Ok(HttpResponse::Ok().json(UpdateSpaceResponse {
         space: updated_space.into(),
     }))

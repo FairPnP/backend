@@ -35,10 +35,10 @@ pub async fn create_space(
     pool: web::Data<DbPool>,
     data: web::Json<CreateSpaceRequest>,
 ) -> Result<HttpResponse, ServiceError> {
-    let data = validate_req_data(data.into_inner())?;
     let user_id = get_user_id(&req)?;
+    let data = validate_req_data(data.into_inner())?;
 
-    let space = SpaceDb::insert(&pool, data.building_id, user_id, data.name.to_owned()).await?;
+    let space = SpaceDb::insert(&pool, user_id, data.building_id, data.name.to_owned()).await?;
     Ok(HttpResponse::Created().json(CreateSpaceResponse {
         space: space.into(),
     }))

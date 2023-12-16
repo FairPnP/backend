@@ -1,14 +1,14 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{spaces::SpaceDb, DbPool},
+    db::{availability::AvailabilityDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use super::public::PublicSpace;
+use super::public::PublicAvailability;
 
 // ======================================================================
 // DTOs
@@ -20,13 +20,13 @@ pub struct PaginationParams {
     #[validate(range(min = 1))]
     limit: Option<i64>,
     user: Option<bool>,
-    #[validate(length(min = 16, max = 32))]
-    building_id: Option<String>,
+    #[validate(range(min = 1))]
+    space_id: Option<i32>,
 }
 
 #[derive(Debug, Serialize)]
-pub struct ListSpacesResponse {
-    pub spaces: Vec<PublicSpace>,
+pub struct ListAvailabilityResponse {
+    pub availability: Vec<PublicAvailability>,
     pub next_offset_id: Option<i32>,
     pub limit: i64,
 }
@@ -35,13 +35,13 @@ pub struct ListSpacesResponse {
 // Route
 
 #[get("")]
-pub async fn list_spaces(
+pub async fn list_availability(
     req: actix_web::HttpRequest,
     pool: web::Data<DbPool>,
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse, ServiceError> {
-    let user_id = get_user_id(&req)?;
     let query = validate_req_data(query.into_inner())?;
+    let user_id = get_user_id(&req)?;
     // default to user_id, but allow override
     let user = match query.user {
         // allow override
@@ -56,22 +56,25 @@ pub async fn list_spaces(
 
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
-    let spaces = SpaceDb::list(
+    let availability = AvailabilityDb::list(
         &pool,
         query.offset_id,
         limit,
         user,
-        query.building_id.to_owned(),
+        query.space_id.to_owned(),
     )
     .await?;
-    let next_offset_id = if spaces.len() as i64 == limit {
-        spaces.last().map(|b| b.id)
+    let next_offset_id = if availability.len() as i64 == limit {
+        availability.last().map(|b| b.id)
     } else {
         None
     };
 
-    Ok(HttpResponse::Ok().json(ListSpacesResponse {
-        spaces: spaces.into_iter().map(PublicSpace::from).collect(),
+    Ok(HttpResponse::Ok().json(ListAvailabilityResponse {
+        availability: availability
+            .into_iter()
+            .map(PublicAvailability::from)
+            .collect(),
         next_offset_id,
         limit,
     }))

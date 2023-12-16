@@ -1,7 +1,7 @@
 CREATE TABLE reservations (
     id SERIAL PRIMARY KEY,
-    availability_id integer NOT NULL,
     user_id UUID NOT NULL,
+    availability_id integer NOT NULL,
     start_date timestamp NOT NULL,
     end_date timestamp NOT NULL CHECK (end_date > start_date),
     created_at timestamp NOT NULL DEFAULT NOW(),

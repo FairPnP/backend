@@ -11,7 +11,10 @@ pub fn validate_token(token: &str, issuer: String, jwks: JWKS) -> Result<Option<
         Err(_) => return Ok(None),
     };
 
-    let jwk = jwks.find(&kid).expect("Specified key not found in set");
+    let jwk = match jwks.find(&kid) {
+        Some(res) => res,
+        None => return Ok(None),
+    };
     let res = validate(token, jwk, validations);
 
     match res {

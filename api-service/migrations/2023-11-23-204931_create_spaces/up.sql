@@ -1,7 +1,7 @@
 CREATE TABLE spaces (
   id SERIAL PRIMARY KEY,
-  building_id integer NOT NULL,
   user_id UUID NOT NULL,
+  building_id integer NOT NULL,
   name varchar NOT NULL,
   last_modified timestamp NOT NULL DEFAULT (now()),
   created_at timestamp NOT NULL DEFAULT (now()),

@@ -1,7 +1,7 @@
 CREATE TABLE space_favorites (
     id SERIAL PRIMARY KEY,
-    space_id integer NOT NULL,
     user_id UUID NOT NULL,
+    space_id integer NOT NULL,
     created_at timestamp NOT NULL DEFAULT (now()),
 
     -- Unique constraint to ensure a user can't favorite the same space more than once

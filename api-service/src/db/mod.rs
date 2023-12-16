@@ -6,6 +6,7 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 pub type DbPool = Pool<Postgres>;
 
+pub mod availability;
 pub mod buildings;
 pub mod spaces;
 
