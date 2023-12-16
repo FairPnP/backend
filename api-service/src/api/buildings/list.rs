@@ -1,5 +1,5 @@
 use crate::{
-    api::validation::validate_req_data,
+    api::validation::{list_param::param_list_i32, validate_req_data},
     db::{buildings::BuildingDb, DbPool},
     error::ServiceError,
 };
@@ -17,8 +17,11 @@ pub struct PaginationParams {
     offset_id: Option<i32>,
     limit: Option<i64>,
     // TODO: validate place_id
-    #[validate(length(min = 8, max = 20))]
+    #[validate(length(min = 16, max = 32))]
     place_id: Option<String>,
+    #[serde(default)]
+    #[serde(deserialize_with = "param_list_i32")]
+    ids: Option<Vec<i32>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -40,7 +43,14 @@ pub async fn list_buildings(
 
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
-    let buildings = BuildingDb::list(&pool, query.offset_id, limit, query.place_id.clone()).await?;
+    let buildings = BuildingDb::list(
+        &pool,
+        query.offset_id,
+        limit,
+        query.place_id.clone(),
+        query.ids,
+    )
+    .await?;
     let next_offset_id = if buildings.len() as i64 == limit {
         buildings.last().map(|b| b.id)
     } else {

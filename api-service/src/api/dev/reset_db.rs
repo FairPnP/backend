@@ -16,13 +16,13 @@ pub async fn reset_database(
         ("buildings", "2023-11-23-203951_create_buildings"),
         ("user_profiles", "2023-11-23-204915_create_user_profiles"),
         ("user_ratings", "2023-11-23-204922_create_user_ratings"),
-        ("bu_spaces", "2023-11-23-204931_create_bu_spaces"),
+        ("spaces", "2023-11-23-204931_create_spaces"),
         (
-            "bu_space_favorites",
-            "2023-12-11-204427_create_bu_space_favorites",
+            "space_favorites",
+            "2023-12-11-204427_create_space_favorites",
         ),
-        ("user_listings", "2023-12-11-210720_create_user_listings"),
-        ("user_bookings", "2023-12-11-210723_create_user_bookings"),
+        ("availability", "2023-12-11-210720_create_availability"),
+        ("reservations", "2023-12-11-210723_create_reservations"),
     ]);
 
     // get migration path

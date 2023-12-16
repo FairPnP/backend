@@ -17,7 +17,7 @@ use super::public::PublicBuilding;
 pub struct UpdateBuildingRequest {
     #[validate(length(min = 1, max = 255))]
     pub name: Option<String>,
-    #[validate(length(min = 8, max = 20))]
+    #[validate(length(min = 16, max = 32))]
     pub place_id: Option<String>,
     pub latitude: Option<BigDecimal>,
     pub longitude: Option<BigDecimal>,

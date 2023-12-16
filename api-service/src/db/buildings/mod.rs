@@ -48,6 +48,7 @@ impl BuildingDb {
         offset_id: Option<i32>,
         limit: i64,
         place_id: Option<String>,
+        ids: Option<Vec<i32>>,
     ) -> Result<Vec<Building>, sqlx::Error> {
         let mut query = String::from("SELECT * FROM buildings");
 
@@ -57,6 +58,16 @@ impl BuildingDb {
         }
         if let Some(oid) = offset_id {
             conditions.push(format!("id > {}", oid));
+        }
+        if let Some(ids) = ids {
+            if !ids.is_empty() {
+                let ids_list = ids
+                    .iter()
+                    .map(|id| id.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                conditions.push(format!("id IN ({})", ids_list));
+            }
         }
 
         if !conditions.is_empty() {

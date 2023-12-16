@@ -19,7 +19,7 @@ impl SpaceDb {
         name: String,
     ) -> Result<Space, sqlx::Error> {
         let space = sqlx::query_as::<_, Space>(
-            "INSERT INTO bu_spaces (building_id, user_id, name) VALUES ($1, $2, $3) RETURNING *",
+            "INSERT INTO spaces (building_id, user_id, name) VALUES ($1, $2, $3) RETURNING *",
         )
         .bind(building_id)
         .bind(user_id)
@@ -34,9 +34,9 @@ impl SpaceDb {
     // ======================================================================
     // Read
 
-    pub async fn get(pool: &DbPool, bu_space_id: i32) -> Result<Space, sqlx::Error> {
-        let space = sqlx::query_as::<_, Space>("SELECT * FROM bu_spaces WHERE id = $1")
-            .bind(bu_space_id)
+    pub async fn get(pool: &DbPool, space_id: i32) -> Result<Space, sqlx::Error> {
+        let space = sqlx::query_as::<_, Space>("SELECT * FROM spaces WHERE id = $1")
+            .bind(space_id)
             .fetch_one(pool)
             .await?;
 
@@ -50,7 +50,7 @@ impl SpaceDb {
         building_id: Option<String>,
         user_id: Option<Uuid>,
     ) -> Result<Vec<Space>, sqlx::Error> {
-        let mut query = String::from("SELECT * FROM bu_spaces");
+        let mut query = String::from("SELECT * FROM spaces");
 
         let mut conditions = vec![];
         if let Some(ref bid) = building_id {
@@ -84,7 +84,7 @@ impl SpaceDb {
         name: Option<String>,
     ) -> Result<Space, sqlx::Error> {
         let space = sqlx::query_as::<_, Space>(
-            "UPDATE bu_spaces SET name = COALESCE($1, name) WHERE id = $2 RETURNING *",
+            "UPDATE spaces SET name = COALESCE($1, name) WHERE id = $2 RETURNING *",
         )
         .bind(name)
         .bind(space_id)
@@ -97,9 +97,9 @@ impl SpaceDb {
     // ======================================================================
     // Delete
 
-    pub async fn delete(pool: &DbPool, bu_space_id: i32) -> Result<(), sqlx::Error> {
-        sqlx::query("DELETE FROM bu_spaces WHERE id = $1")
-            .bind(bu_space_id)
+    pub async fn delete(pool: &DbPool, space_id: i32) -> Result<(), sqlx::Error> {
+        sqlx::query("DELETE FROM spaces WHERE id = $1")
+            .bind(space_id)
             .execute(pool)
             .await?;
         Ok(())

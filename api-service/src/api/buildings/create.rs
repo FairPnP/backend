@@ -18,7 +18,7 @@ pub struct CreateBuildingRequest {
     #[validate(length(min = 1, max = 255))]
     pub name: String,
     // TODO: validate place_id
-    #[validate(length(min = 8, max = 20))]
+    #[validate(length(min = 16, max = 32))]
     pub place_id: String,
     // TODO: validate latitude and longitude
     pub latitude: BigDecimal,

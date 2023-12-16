@@ -19,7 +19,7 @@ pub struct PaginationParams {
     offset_id: Option<i32>,
     #[validate(range(min = 1))]
     limit: Option<i64>,
-    #[validate(length(min = 8, max = 20))]
+    #[validate(length(min = 16, max = 32))]
     building_id: Option<String>,
     user: Option<bool>,
 }
