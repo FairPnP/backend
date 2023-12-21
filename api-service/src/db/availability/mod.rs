@@ -1,8 +1,9 @@
 use bigdecimal::BigDecimal;
 use chrono::NaiveDateTime;
+use sqlx::Row;
 use uuid::Uuid;
 
-use self::entities::Availability;
+use self::entities::{Availability, AvailabilityResult, BuildingResult, SearchResult, SpaceResult};
 
 use super::DbPool;
 
@@ -62,10 +63,10 @@ impl AvailabilityDb {
         if let Some(ref uid) = user_id {
             conditions.push(format!("user_id = '{}'", uid));
         }
+        if let Some(ref sid) = space_id {
+            conditions.push(format!("space_id = '{}'", sid));
+        }
         if let Some(oid) = offset_id {
-            if let Some(ref sid) = space_id {
-                conditions.push(format!("space_id = '{}'", sid));
-            }
             conditions.push(format!("id > {}", oid));
         }
 
@@ -122,5 +123,78 @@ impl AvailabilityDb {
             .execute(pool)
             .await?;
         Ok(())
+    }
+
+    // ======================================================================
+    // Search
+
+    pub async fn search(
+        pool: &DbPool,
+        start_date: NaiveDateTime,
+        end_date: NaiveDateTime,
+        latitude: BigDecimal,
+        longitude: BigDecimal,
+        lat_delta: BigDecimal,
+        long_delta: BigDecimal,
+    ) -> Result<Vec<SearchResult>, sqlx::Error> {
+        let query = "
+            SELECT 
+                a.id as a_id, a.space_id as a_space_id, a.start_date as a_start_date, a.end_date as a_end_date, a.hourly_rate as a_hourly_rate,
+                b.id as b_id, b.name as b_name, b.place_id as b_place_id, b.latitude as b_latitude, b.longitude as b_longitude,
+                s.id as s_id, s.building_id as s_building_id, s.name as s_name
+            FROM buildings b
+            JOIN spaces s ON b.id = s.building_id
+            JOIN availability a ON s.id = a.space_id
+            LEFT JOIN reservations r ON a.id = r.availability_id 
+                AND (r.start_date < $2 AND r.end_date > $1)
+            WHERE b.latitude BETWEEN $3 - $5 AND $3 + $5
+            AND b.longitude BETWEEN $4 - $6 AND $4 + $6
+            AND a.start_date <= $1
+            AND a.end_date >= $2
+            AND r.id IS NULL";
+
+        let mut results = Vec::new();
+
+        let rows = sqlx::query(query)
+            .bind(start_date)
+            .bind(end_date)
+            .bind(latitude)
+            .bind(longitude)
+            .bind(lat_delta)
+            .bind(long_delta)
+            .fetch_all(pool)
+            .await?;
+
+        for row in rows {
+            let availability = AvailabilityResult {
+                id: row.try_get("a_id")?,
+                space_id: row.try_get("a_space_id")?,
+                start_date: row.try_get("a_start_date")?,
+                end_date: row.try_get("a_end_date")?,
+                hourly_rate: row.try_get("a_hourly_rate")?,
+            };
+
+            let building = BuildingResult {
+                id: row.try_get("b_id")?,
+                name: row.try_get("b_name")?,
+                place_id: row.try_get("b_place_id")?,
+                latitude: row.try_get("b_latitude")?,
+                longitude: row.try_get("b_longitude")?,
+            };
+
+            let space = SpaceResult {
+                id: row.try_get("s_id")?,
+                building_id: row.try_get("s_building_id")?,
+                name: row.try_get("s_name")?,
+            };
+
+            results.push(SearchResult {
+                availability,
+                building,
+                space,
+            });
+        }
+
+        Ok(results)
     }
 }

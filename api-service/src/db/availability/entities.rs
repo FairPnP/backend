@@ -17,3 +17,31 @@ pub struct Availability {
     pub created_at: NaiveDateTime,
     pub last_modified: NaiveDateTime,
 }
+
+pub struct SearchResult {
+    pub building: BuildingResult,
+    pub space: SpaceResult,
+    pub availability: AvailabilityResult,
+}
+
+pub struct BuildingResult {
+    pub id: i32,
+    pub name: String,
+    pub place_id: String,
+    pub latitude: BigDecimal,
+    pub longitude: BigDecimal,
+}
+
+pub struct SpaceResult {
+    pub id: i32,
+    pub building_id: i32,
+    pub name: String,
+}
+
+pub struct AvailabilityResult {
+    pub id: i32,
+    pub space_id: i32,
+    pub start_date: NaiveDateTime,
+    pub end_date: NaiveDateTime,
+    pub hourly_rate: BigDecimal,
+}

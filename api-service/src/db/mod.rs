@@ -8,6 +8,7 @@ pub type DbPool = Pool<Postgres>;
 
 pub mod availability;
 pub mod buildings;
+pub mod reservations;
 pub mod spaces;
 
 pub async fn establish_connection() -> DbPool {

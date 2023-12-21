@@ -3,8 +3,9 @@ use actix_web::web;
 mod create;
 mod delete;
 mod list;
-mod public;
+pub mod public;
 mod read;
+mod search;
 mod update;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
@@ -14,6 +15,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .service(read::read_availability)
             .service(update::update_availability)
             .service(delete::delete_availability)
-            .service(list::list_availability),
+            .service(list::list_availability)
+            .service(search::search_availability),
     );
 }

@@ -3,7 +3,7 @@ use actix_web::web;
 mod create;
 mod delete;
 mod list;
-mod public;
+pub mod public;
 mod read;
 mod update;
 
