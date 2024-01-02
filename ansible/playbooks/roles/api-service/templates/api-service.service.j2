@@ -13,6 +13,10 @@ Environment="DATABASE_URL={{ postgres_db_url }}"
 Environment="AUTH_ISSUER={{ auth_issuer }}"
 Environment="AUTH_JWKS_URL={{ auth_jwks_url }}"
 Environment="MIGRATIONS_PATH={{ migration_path }}"
+Environment="S3_BUCKET_USER_CONTENT={{ s3_bucket_user_content }}"
+Environment="AWS_REGION={{ aws_region }}"
+Environment="AWS_ACCESS_KEY_ID={{ aws_access_key_id }}"
+Environment="AWS_SECRET_ACCESS_KEY={{ aws_secret_access_key }}"
 StandardOutput=append:{{ log_dir }}/api-service.log
 StandardError=append:{{ log_dir }}/api-service.error.log
 

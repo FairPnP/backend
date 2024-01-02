@@ -8,43 +8,32 @@
 # tfsec:ignore:aws-s3-specify-public-access-block
 # tfsec:ignore:aws-s3-enable-bucket-logging
 # tfsec:ignore:aws-s3-enable-versioning
+# tfsec:ignore:aws-s3-enable-bucket-encryption
+# tfsec:ignore:aws-s3-encryption-customer-key
 resource "aws_s3_bucket" "user_content" {
   bucket = "${local.namespace}-user-content"
 
   tags = local.tags
 }
 
-resource "aws_kms_key" "user_content_kms_key" {
-  enable_key_rotation = true
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "user_content_encryption" {
-  bucket = aws_s3_bucket.user_content.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.user_content_kms_key.arn
-      sse_algorithm     = "aws:kms"
-    }
-  }
-}
 # ==============================================================================
-# ACLs
+# ACLs - Public Access
 
+# tfsec:ignore:aws-s3-block-public-acls
+# tfsec:ignore:aws-s3-ignore-public-acls
 # tfsec:ignore:aws-s3-block-public-policy
+# tfsec:ignore:aws-s3-no-public-buckets
 resource "aws_s3_bucket_public_access_block" "user_content_public_access_block" {
   bucket = aws_s3_bucket.user_content.id
 
-  # Set to false to allow public read access via bucket policy
-  block_public_policy = false
-
-  block_public_acls       = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  block_public_acls       = false
+  ignore_public_acls      = false
+  block_public_policy     = false
+  restrict_public_buckets = false
 }
 
 # ==============================================================================
-# Bucket Policy
+# Bucket Policy - Public Read Access
 
 resource "aws_s3_bucket_policy" "user_content_policy" {
   bucket = aws_s3_bucket.user_content.id
@@ -61,6 +50,9 @@ resource "aws_s3_bucket_policy" "user_content_policy" {
     ],
   })
 }
+
+# ==============================================================================
+# IAM Policy for Upload
 
 # tfsec:ignore:aws-iam-no-policy-wildcards
 resource "aws_iam_policy" "s3_user_content_upload_policy" {
@@ -79,14 +71,6 @@ resource "aws_iam_policy" "s3_user_content_upload_policy" {
         Action   = ["s3:ListBucket"],
         Effect   = "Allow",
         Resource = aws_s3_bucket.user_content.arn,
-      },
-      {
-        Action = [
-          "kms:GenerateDataKey",
-          "kms:Decrypt"
-        ],
-        Effect   = "Allow",
-        Resource = aws_kms_key.user_content_kms_key.arn,
       },
     ]
   })

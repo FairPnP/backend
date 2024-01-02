@@ -3,3 +3,5 @@ git_repo_branch: master
 git_repo_path: "{{ ansible_env.HOME }}/fairpnp"
 api_service_project_path: "{{ git_repo_path }}/api-service"
 migration_path: "{{ api_service_project_path }}/migrations"
+s3_bucket_user_content: "fairpnp-dev-user-content"
+aws_region: "us-east-2"
