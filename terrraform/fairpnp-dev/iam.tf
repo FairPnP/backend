@@ -1,8 +1,17 @@
 locals {
   iam_users = {
+    api_service = {
+      generate_secret = true
+      groups          = ["s3_user_content_upload"]
+    }
   }
 
-  user_roles = {
+  user_groups = {
+    s3_user_content_upload = {
+      policies = [
+        aws_iam_policy.s3_user_content_upload_policy.arn
+      ]
+    }
   }
 
   assumable_roles = {
@@ -27,34 +36,48 @@ resource "aws_iam_user" "users" {
   tags = local.tags
 }
 
-resource "aws_iam_access_key" "github_user_key" {
+resource "aws_iam_access_key" "secret_user_key" {
   for_each = { for k in local.secret_iam_users : k => aws_iam_user.users[k] }
 
   user = each.value.name
 }
 
 # ==============================================================================
-# IAM Role config
+# IAM Group config
 
-resource "aws_iam_role" "user_roles" {
-  for_each = local.user_roles
+# tfsec:ignore:aws-iam-enforce-group-mfa
+resource "aws_iam_group" "user_groups" {
+  for_each = local.user_groups
 
   name = "${local.namespace}-${each.key}"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
+}
+
+resource "aws_iam_group_policy_attachment" "user_group_attach" {
+  for_each = { for _, value in flatten([
+    for group, details in local.user_groups : [
+      for idx, arn in details.policies : {
+        idx        = idx
+        group      = group
+        policy_arn = arn
       }
     ]
-  })
+  ]) : "${value.group}-${value.idx}" => value }
 
-  tags = local.tags
+  group      = aws_iam_group.user_groups[each.value.group].name
+  policy_arn = each.value.policy_arn
 }
+
+resource "aws_iam_user_group_membership" "user_group_membership" {
+  for_each = { for k, v in local.iam_users : k => v if length(v.groups) > 0 }
+
+  user = aws_iam_user.users[each.key].name
+  groups = [
+    for g in each.value.groups : aws_iam_group.user_groups[g].name
+  ]
+}
+
+# ==============================================================================
+# IAM Assumable Role config
 
 resource "aws_iam_role" "assumable_roles" {
   for_each = local.assumable_roles
@@ -74,44 +97,7 @@ resource "aws_iam_role" "assumable_roles" {
   })
 }
 
-resource "aws_iam_user_policy" "user_assume_role_policy" {
-  for_each = local.iam_users
-
-  name = "${local.namespace}-${each.key}-assume-role-policy"
-  user = aws_iam_user.users[each.key].name
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      for role in each.value.roles : {
-        Effect   = "Allow",
-        Action   = "sts:AssumeRole",
-        Resource = aws_iam_role.user_roles[role].arn
-      }
-    ]
-  })
-}
-
-
-# ==============================================================================
-# IAM Policy config
-
-resource "aws_iam_role_policy_attachment" "role_policies" {
-  for_each = { for _, value in flatten([
-    for role, details in local.user_roles : [
-      for idx, arn in details.policies : {
-        idx        = idx
-        role       = role
-        policy_arn = arn
-      }
-    ]
-  ]) : "${value.role}-${value.idx}" => value }
-
-  role       = aws_iam_role.user_roles[each.value.role].name
-  policy_arn = each.value.policy_arn
-}
-
-resource "aws_iam_role_policy_attachment" "service_role_policies" {
+resource "aws_iam_role_policy_attachment" "assumable_role_policies" {
   for_each = { for _, value in flatten([
     for role, details in local.assumable_roles : [
       for idx, arn in details.policies : {
@@ -132,8 +118,8 @@ resource "aws_iam_role_policy_attachment" "service_role_policies" {
 output "iam_user_secrets" {
   value = {
     for k in local.secret_iam_users : k => {
-      access_key = aws_iam_access_key.github_user_key[k].id
-      secret     = aws_iam_access_key.github_user_key[k].secret
+      access_key = aws_iam_access_key.secret_user_key[k].id
+      secret     = aws_iam_access_key.secret_user_key[k].secret
     }
   }
   sensitive = true

@@ -8,7 +8,7 @@ use actix_web::{
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::{middleware::jwt_validator, state::JwtValidatorState};
-use db::establish_connection;
+use db::{establish_connection, s3::get_s3_client};
 use tracing::Level;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber;
@@ -30,6 +30,7 @@ async fn main() -> std::io::Result<()> {
     let jwt_validator_state = JwtValidatorState::new(jwt_issuer, jwks_uri);
     jwt_validator_state.get_jwks().await;
     let jwt_validator_state = Arc::new(jwt_validator_state);
+    let s3_client = get_s3_client();
 
     let server_bind_address =
         std::env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3000".to_string());
@@ -40,6 +41,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(Cors::permissive())
             .app_data(Data::new(pool.clone()))
+            .app_data(Data::new(s3_client.clone()))
             .configure(health::config)
             .service(
                 web::scope("/api")

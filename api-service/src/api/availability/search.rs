@@ -1,10 +1,7 @@
 use crate::{
-    api::{
-        buildings::public::PublicBuilding, spaces::public::PublicSpace,
-        validation::validate_req_data,
-    },
+    api::{buildings::public::PublicBuilding, validation::validate_req_data},
     db::{
-        availability::{entities::AvailabilityResult, AvailabilityDb},
+        availability::{entities::SpaceResult, AvailabilityDb},
         DbPool,
     },
     error::ServiceError,
@@ -22,8 +19,8 @@ use super::public::PublicAvailability;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct SearchAvailabilityRequest {
-    pub start_date: NaiveDateTime,
-    pub end_date: NaiveDateTime,
+    pub start_date: Option<NaiveDateTime>,
+    pub end_date: Option<NaiveDateTime>,
     pub latitude: BigDecimal,
     pub longitude: BigDecimal,
     pub lat_delta: BigDecimal,
@@ -33,7 +30,7 @@ pub struct SearchAvailabilityRequest {
 #[derive(Debug, Serialize)]
 pub struct SearchAvailabilityResponse {
     pub buildings: Vec<PublicBuilding>,
-    pub spaces: Vec<PublicSpace>,
+    pub spaces: Vec<SpaceResult>,
     pub availabilities: Vec<PublicAvailability>,
 }
 
@@ -47,10 +44,20 @@ pub async fn search_availability(
 ) -> Result<HttpResponse, ServiceError> {
     let data = validate_req_data(data.into_inner())?;
 
+    let start_date = data.start_date.unwrap_or_else(|| {
+        let now = chrono::Utc::now();
+        NaiveDateTime::from_timestamp_opt(now.timestamp(), 0).unwrap()
+    });
+    let end_date = data.end_date.unwrap_or_else(|| {
+        // add a month to start date
+        let end_date = start_date + chrono::Duration::days(30);
+        end_date
+    });
+
     let search_result = AvailabilityDb::search(
         &pool,
-        data.start_date,
-        data.end_date,
+        start_date,
+        end_date,
         data.latitude,
         data.longitude,
         data.lat_delta,
@@ -59,7 +66,7 @@ pub async fn search_availability(
     .await?;
 
     let mut buildings: Vec<PublicBuilding> = Vec::new();
-    let mut spaces: Vec<PublicSpace> = Vec::new();
+    let mut spaces: Vec<SpaceResult> = Vec::new();
     let mut availabilities: Vec<PublicAvailability> = Vec::new();
 
     for result in search_result {
@@ -78,10 +85,9 @@ pub async fn search_availability(
         }
 
         if !spaces.iter().any(|s| s.id == space.id) {
-            spaces.push(PublicSpace {
+            spaces.push(SpaceResult {
                 id: space.id,
                 building_id: space.building_id,
-                name: space.name,
             });
         }
 

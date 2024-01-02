@@ -1,5 +1,6 @@
 use bigdecimal::BigDecimal;
 use chrono::NaiveDateTime;
+use serde::Serialize;
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -18,12 +19,14 @@ pub struct Availability {
     pub last_modified: NaiveDateTime,
 }
 
+#[derive(Serialize)]
 pub struct SearchResult {
     pub building: BuildingResult,
     pub space: SpaceResult,
     pub availability: AvailabilityResult,
 }
 
+#[derive(Serialize)]
 pub struct BuildingResult {
     pub id: i32,
     pub name: String,
@@ -32,12 +35,13 @@ pub struct BuildingResult {
     pub longitude: BigDecimal,
 }
 
+#[derive(Debug, Serialize)]
 pub struct SpaceResult {
     pub id: i32,
     pub building_id: i32,
-    pub name: String,
 }
 
+#[derive(Serialize)]
 pub struct AvailabilityResult {
     pub id: i32,
     pub space_id: i32,

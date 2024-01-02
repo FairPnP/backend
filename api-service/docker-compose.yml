@@ -11,6 +11,10 @@ services:
       AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
       AUTH_JWKS_URL: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
       MIGRATIONS_PATH: ./migrations
+      AWS_REGION: us-east-2
+      AWS_ACCESS_KEY_ID: AKIAZNJMKL3BV6CN6ME6
+      AWS_SECRET_ACCESS_KEY: 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
+      S3_BUCKET_USER_CONTENT: fairpnp-dev-user-content
     volumes:
       - ./src:/usr/src/api-service/src
       - ./migrations:/usr/src/api-service/migrations

@@ -19,6 +19,15 @@ pub struct CreateSpaceRequest {
     pub building_id: i32,
     #[validate(length(min = 1, max = 255))]
     pub name: String,
+    pub description: Option<String>,
+    pub picture_url: Option<String>,
+    #[validate(length(min = 1))]
+    pub max_vehicle_size: String,
+    #[validate(length(min = 1))]
+    pub coverage: String,
+    pub height_clearance_cm: Option<i32>,
+    pub access_restrictions: Option<String>,
+    pub parking_instructions: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -38,7 +47,20 @@ pub async fn create_space(
     let user_id = get_user_id(&req)?;
     let data = validate_req_data(data.into_inner())?;
 
-    let space = SpaceDb::insert(&pool, user_id, data.building_id, data.name.to_owned()).await?;
+    let space = SpaceDb::insert(
+        &pool,
+        user_id,
+        data.building_id,
+        data.name.to_owned(),
+        data.description,
+        data.picture_url,
+        data.max_vehicle_size,
+        data.coverage,
+        data.height_clearance_cm,
+        data.access_restrictions,
+        data.parking_instructions,
+    )
+    .await?;
     Ok(HttpResponse::Created().json(CreateSpaceResponse {
         space: space.into(),
     }))

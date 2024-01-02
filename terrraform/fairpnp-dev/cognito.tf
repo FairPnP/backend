@@ -78,26 +78,6 @@ resource "aws_cognito_user_pool_client" "customer_user_pool_client" {
 }
 
 # ==============================================================================
-# Google Identity Provider
-
-resource "aws_cognito_identity_provider" "google" {
-  user_pool_id  = aws_cognito_user_pool.customer_user_pool.id
-  provider_name = "Google"
-  provider_type = "Google"
-
-  provider_details = {
-    client_id        = "841374583718-9hj367s57cll8kft7pa3lihhj2ovub73.apps.googleusercontent.com"
-    client_secret    = "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"
-    authorize_scopes = "profile email openid"
-  }
-
-  attribute_mapping = {
-    email    = "email"
-    username = "sub"
-  }
-}
-
-# ==============================================================================
 # Outputs
 
 output "cognito" {

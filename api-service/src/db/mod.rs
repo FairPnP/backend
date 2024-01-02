@@ -2,6 +2,8 @@ use std::env;
 
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
+use crate::error::ServiceError;
+
 // pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 pub type DbPool = Pool<Postgres>;
@@ -9,6 +11,7 @@ pub type DbPool = Pool<Postgres>;
 pub mod availability;
 pub mod buildings;
 pub mod reservations;
+pub mod s3;
 pub mod spaces;
 
 pub async fn establish_connection() -> DbPool {
@@ -29,4 +32,19 @@ pub async fn establish_connection() -> DbPool {
     // }
 
     pool
+}
+
+pub async fn do_health_check(pool: &DbPool) -> Result<(), ServiceError> {
+    let row: (i64,) = sqlx::query_as("SELECT $1")
+        .bind(150_i64)
+        .fetch_one(pool)
+        .await?;
+
+    if row.0 != 150 {
+        return Err(ServiceError::InternalError(
+            "Health check failed".to_string(),
+        ));
+    }
+
+    Ok(())
 }

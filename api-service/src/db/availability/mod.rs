@@ -141,7 +141,7 @@ impl AvailabilityDb {
             SELECT 
                 a.id as a_id, a.space_id as a_space_id, a.start_date as a_start_date, a.end_date as a_end_date, a.hourly_rate as a_hourly_rate,
                 b.id as b_id, b.name as b_name, b.place_id as b_place_id, b.latitude as b_latitude, b.longitude as b_longitude,
-                s.id as s_id, s.building_id as s_building_id, s.name as s_name
+                s.id as s_id, s.building_id as s_building_id
             FROM buildings b
             JOIN spaces s ON b.id = s.building_id
             JOIN availability a ON s.id = a.space_id
@@ -153,8 +153,6 @@ impl AvailabilityDb {
             AND a.end_date >= $2
             AND r.id IS NULL";
 
-        let mut results = Vec::new();
-
         let rows = sqlx::query(query)
             .bind(start_date)
             .bind(end_date)
@@ -164,6 +162,8 @@ impl AvailabilityDb {
             .bind(long_delta)
             .fetch_all(pool)
             .await?;
+
+        let mut results = Vec::new();
 
         for row in rows {
             let availability = AvailabilityResult {
@@ -185,7 +185,6 @@ impl AvailabilityDb {
             let space = SpaceResult {
                 id: row.try_get("s_id")?,
                 building_id: row.try_get("s_building_id")?,
-                name: row.try_get("s_name")?,
             };
 
             results.push(SearchResult {

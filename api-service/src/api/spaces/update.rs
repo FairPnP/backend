@@ -17,6 +17,13 @@ use super::public::PublicSpace;
 pub struct UpdateSpaceRequest {
     #[validate(length(min = 1, max = 255))]
     pub name: Option<String>,
+    pub description: Option<String>,
+    pub picture_url: Option<String>,
+    pub max_vehicle_size: Option<String>,
+    pub coverage: Option<String>,
+    pub height_clearance_cm: Option<Option<i32>>, // Double Option to allow setting the field to NULL
+    pub access_restrictions: Option<String>,
+    pub parking_instructions: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -38,7 +45,20 @@ pub async fn update_space(
     let data = validate_req_data(data.into_inner())?;
     let space_id = space_id.into_inner();
 
-    let updated_space = SpaceDb::update(&pool, user_id, space_id, data.name.to_owned()).await?;
+    let updated_space = SpaceDb::update(
+        &pool,
+        space_id,
+        user_id,
+        data.name.to_owned(),
+        data.description,
+        data.picture_url,
+        data.max_vehicle_size,
+        data.coverage,
+        data.height_clearance_cm,
+        data.access_restrictions,
+        data.parking_instructions,
+    )
+    .await?;
     Ok(HttpResponse::Ok().json(UpdateSpaceResponse {
         space: updated_space.into(),
     }))
