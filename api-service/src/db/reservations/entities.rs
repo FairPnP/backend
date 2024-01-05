@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub struct Reservation {
     pub id: i32,
     pub user_id: Uuid,
-    pub availability_id: i32,
+    pub space_id: i32,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
     pub last_modified: NaiveDateTime,

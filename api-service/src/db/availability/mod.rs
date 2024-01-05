@@ -145,7 +145,7 @@ impl AvailabilityDb {
             FROM buildings b
             JOIN spaces s ON b.id = s.building_id
             JOIN availability a ON s.id = a.space_id
-            LEFT JOIN reservations r ON a.id = r.availability_id 
+            LEFT JOIN reservations r ON s.id = r.space_id 
                 AND (r.start_date < $2 AND r.end_date > $1)
             WHERE b.latitude BETWEEN $3 - $5 AND $3 + $5
             AND b.longitude BETWEEN $4 - $6 AND $4 + $6

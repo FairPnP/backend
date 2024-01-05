@@ -17,7 +17,7 @@ use super::public::PublicReservation;
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateReservationRequest {
     #[validate(range(min = 1))]
-    pub availability_id: i32,
+    pub space_id: i32,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
 }
@@ -42,7 +42,7 @@ pub async fn create_reservation(
     let reservation = ReservationDb::insert(
         &pool,
         user_id,
-        data.availability_id,
+        data.space_id,
         data.start_date,
         data.end_date,
     )
