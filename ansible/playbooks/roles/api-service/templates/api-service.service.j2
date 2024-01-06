@@ -8,6 +8,7 @@ ExecStart=/usr/local/bin/api-service
 Restart=on-failure
 User=ec2-user
 Group=ec2-user
+Environment="BASE_URL=https://{{ api_server_name }}"
 Environment="HOME={{ ansible_env.HOME }}"
 Environment="DATABASE_URL={{ postgres_db_url }}"
 Environment="AUTH_ISSUER={{ auth_issuer }}"
@@ -17,6 +18,9 @@ Environment="S3_BUCKET_USER_CONTENT={{ s3_bucket_user_content }}"
 Environment="AWS_REGION={{ aws_region }}"
 Environment="AWS_ACCESS_KEY_ID={{ aws_access_key_id }}"
 Environment="AWS_SECRET_ACCESS_KEY={{ aws_secret_access_key }}"
+Environment="STRIPE_SECRET_KEY={{ stripe_secret_key }}"
+Environment="STRIPE_RETURN_URL={{ stripe_return_url }}"
+Environment="STRIPE_REFRESH_URL={{ stripe_refresh_url }}"
 StandardOutput=append:{{ log_dir }}/api-service.log
 StandardError=append:{{ log_dir }}/api-service.error.log
 
