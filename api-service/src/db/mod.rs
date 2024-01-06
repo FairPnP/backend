@@ -13,6 +13,7 @@ pub mod buildings;
 pub mod reservations;
 pub mod s3;
 pub mod spaces;
+pub mod stripe_accounts;
 
 pub async fn establish_connection() -> DbPool {
     dotenv::dotenv().ok();

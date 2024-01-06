@@ -7,6 +7,7 @@ services:
     ports:
       - '3000:3000'
     environment:
+      BASE_URL: http://192.168.86.40:3000
       DATABASE_URL: postgres://postgres:password@db:5432/api
       AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
       AUTH_JWKS_URL: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
@@ -15,6 +16,9 @@ services:
       AWS_ACCESS_KEY_ID: AKIAZNJMKL3BV6CN6ME6
       AWS_SECRET_ACCESS_KEY: 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
       S3_BUCKET_USER_CONTENT: fairpnp-dev-user-content
+      STRIPE_SECRET_KEY: sk_test_51OPtRcEjtf5XGOQ8CfWLHucJDdEc1mEiJ0YpdSahFC9lkvkehgX0k5vSmf8AYUcKNSlcOn7ls9X85AjvxsB2izKy00sHODun4C
+      STRIPE_RETURN_URL: fairpnp://stripe/return
+      STRIPE_REFRESH_URL: fairpnp://stripe/refresh
     volumes:
       - ./src:/usr/src/api-service/src
       - ./migrations:/usr/src/api-service/migrations

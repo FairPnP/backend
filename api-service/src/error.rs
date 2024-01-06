@@ -2,6 +2,7 @@ use std::fmt;
 
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde::Serialize;
+use stripe::StripeError;
 use validator::ValidationErrors;
 
 #[derive(Serialize)]
@@ -37,6 +38,12 @@ impl From<sqlx::Error> for ServiceError {
             }
             _ => ServiceError::DatabaseError(error.to_string()),
         }
+    }
+}
+
+impl From<StripeError> for ServiceError {
+    fn from(error: StripeError) -> Self {
+        ServiceError::InternalError(error.to_string())
     }
 }
 
