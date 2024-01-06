@@ -16,13 +16,13 @@ impl StripeAccountDb {
     pub async fn insert(
         pool: &DbPool,
         user_id: Uuid,
-        account_id: String,
+        account_id: &str,
     ) -> Result<StripeAccount, sqlx::Error> {
         let stripe_account = sqlx::query_as::<_, StripeAccount>(
             "INSERT INTO stripe_accounts (user_id, account_id) VALUES ($1, $2) RETURNING *",
         )
         .bind(&user_id)
-        .bind(&account_id)
+        .bind(account_id)
         .fetch_one(pool)
         .await?
         .into();

@@ -3,7 +3,7 @@ CREATE TABLE stripe_accounts (
     user_id UUID NOT NULL,
     account_id VARCHAR(255) NOT NULL,
     created_at timestamp NOT NULL DEFAULT NOW(),
-    last_modified timestamp NOT NULL DEFAULT NOW()
+    last_modified timestamp NOT NULL DEFAULT NOW(),
 
     CONSTRAINT unique_user_account_id UNIQUE (user_id, account_id)
 );

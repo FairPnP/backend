@@ -2,11 +2,10 @@ use crate::{
     auth::user::get_user_id,
     db::{stripe_accounts::StripeAccountDb, DbPool},
     error::ServiceError,
-    stripe::account::StripeAccount,
+    stripe::StripeClient,
 };
 use actix_web::{post, web, HttpRequest, HttpResponse};
 use serde::Serialize;
-use stripe::Client;
 
 // ======================================================================
 // DTOs
@@ -22,13 +21,13 @@ pub struct CreateAccountResponse {
 #[post("")]
 pub async fn create_account(
     req: HttpRequest,
-    client: web::Data<Client>,
     pool: web::Data<DbPool>,
+    stripe_client: web::Data<StripeClient>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
-    let account = StripeAccount::create_account(&client).await?;
-    StripeAccountDb::insert(&pool, user_id, account.id.to_string()).await?;
-    let link = StripeAccount::create_account_link(&client, account.id).await?;
+    let account_id = stripe_client.create_account().await?;
+    StripeAccountDb::insert(&pool, user_id, &account_id).await?;
+    let link = stripe_client.create_account_link(&account_id).await?;
 
-    Ok(HttpResponse::Created().json(CreateAccountResponse { link: link.url }))
+    Ok(HttpResponse::Created().json(CreateAccountResponse { link }))
 }

@@ -2,6 +2,7 @@ use alcoholic_jwt::JWKS;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+#[derive(Clone)]
 pub struct JwtValidatorState {
     issuer: String,
     jwks_uri: String,

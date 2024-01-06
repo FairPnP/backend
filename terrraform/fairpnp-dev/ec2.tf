@@ -11,6 +11,7 @@ locals {
     # === x86
     # ami           = "ami-089c26792dcb1fbd4"
     # instance_type = "t2.micro"
+    drive_space = 20
   }
 }
 
@@ -29,7 +30,8 @@ resource "aws_instance" "api_server" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   root_block_device {
-    encrypted = true
+    encrypted   = true
+    volume_size = local.ec2_api_service.drive_space
   }
 
   metadata_options {
