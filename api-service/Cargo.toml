@@ -16,7 +16,6 @@ async-stripe = { version = "0.26.0", features = [
 ] }
 bigdecimal = { version = "0.3", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-diesel_migrations = { version = "2.1", features = ["postgres"] }
 dotenv = "0.15"
 futures = "0.3"
 futures-util = "0.3"
