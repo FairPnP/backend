@@ -1,5 +1,6 @@
 use std::fmt;
 
+use super::stripe::error::StripeError;
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde::Serialize;
 use validator::ValidationErrors;
@@ -49,6 +50,15 @@ impl From<reqwest::Error> for ServiceError {
 impl From<ValidationErrors> for ServiceError {
     fn from(error: ValidationErrors) -> Self {
         ServiceError::ValidationError(error)
+    }
+}
+
+impl From<StripeError> for ServiceError {
+    fn from(error: StripeError) -> Self {
+        match error {
+            StripeError::ApiError(e) => ServiceError::InternalError(e.message),
+            StripeError::InternalError(e) => ServiceError::InternalError(e.message),
+        }
     }
 }
 

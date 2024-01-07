@@ -9,7 +9,7 @@ use actix_web::{
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::{middleware::jwt_validator, state::JwtValidatorState};
 use db::{establish_connection, s3::get_s3_client};
-use stripe::get_stripe_client;
+use stripe::client::StripeClient;
 use tracing::Level;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber;
@@ -34,7 +34,12 @@ async fn main() -> std::io::Result<()> {
     jwt_validator_state.get_jwks().await;
     let jwt_validator_state = Arc::new(jwt_validator_state);
     let s3_client = get_s3_client();
-    let stripe_client = get_stripe_client();
+
+    let secret_key = std::env::var("STRIPE_SECRET_KEY").expect("Missing STRIPE_SECRET_KEY in env");
+    let base_url = std::env::var("BASE_URL").expect("Missing BASE_URL in env");
+    let return_url = format!("{}/redirect/stripe/return", base_url);
+    let refresh_url = format!("{}/redirect/stripe/refresh", base_url);
+    let stripe_client = StripeClient::new(secret_key, return_url, refresh_url);
 
     let server_bind_address =
         std::env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3000".to_string());
