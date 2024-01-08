@@ -24,6 +24,7 @@ pub async fn reset_database(
         ("availability", "2023-12-11-210720_create_availability"),
         ("reservations", "2023-12-11-210723_create_reservations"),
         ("stripe_accounts", "2024-01-05_create_stripe_accounts"),
+        ("stripe_customers", "2024-01-08_create_stripe_customers"),
     ]);
 
     // get migration path

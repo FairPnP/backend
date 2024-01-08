@@ -7,7 +7,7 @@ mod validate;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/account")
+        web::scope("/accounts")
             .service(dashboard::dashboard)
             .service(validate::validate_account)
             .service(create::create_account)

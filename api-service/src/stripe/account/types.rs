@@ -20,6 +20,9 @@ pub struct AccountRequirements {
     pub currently_due: Option<Vec<String>>,
 }
 
+// =============================================================================
+// Account Link
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountLink {
     pub created: Timestamp,
@@ -29,9 +32,27 @@ pub struct AccountLink {
     pub url: String,
 }
 
+#[derive(Clone, Debug, Serialize)]
+pub struct CreateAccountLink {
+    pub account: AccountId,
+    pub refresh_url: String,
+    pub return_url: String,
+
+    #[serde(rename = "type")]
+    pub type_: String,
+}
+
+// =============================================================================
+// Login Link
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct LoginLink {
     pub created: Timestamp,
 
     pub url: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct CreateLoginLink {
+    pub account: AccountId,
 }

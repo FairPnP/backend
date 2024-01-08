@@ -1,5 +1,5 @@
 use reqwest::{Client, Method};
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::Debug;
 
 use super::error::{ApiError, InternalError, StripeError};
@@ -22,21 +22,41 @@ impl StripeClient {
         }
     }
 
-    pub async fn request<T: DeserializeOwned + Debug>(
+    pub async fn request<R: DeserializeOwned + Debug, P: Serialize + Debug>(
         &self,
         method: Method,
         path: &str,
-        params: Option<Vec<(&str, &str)>>,
-    ) -> Result<T, StripeError> {
+        params: Option<P>,
+    ) -> Result<R, StripeError> {
         let url = format!("https://api.stripe.com/v1{}", path);
         let mut request = self
             .http_client
-            .request(method, &url)
+            .request(method.clone(), &url)
             .header("Authorization", format!("Bearer {}", self.secret_key))
-            .header("Content-Type", "application/x-www-form-urlencoded");
+            .header("Stripe-Version", "2023-10-16");
 
         if let Some(p) = params {
-            request = request.form(&p);
+            match method {
+                Method::GET => {
+                    let query = serde_urlencoded::to_string(&p).map_err(|err| {
+                        StripeError::InternalError(InternalError {
+                            message: format!("Failed to serialize query params: {:?}", err),
+                        })
+                    })?;
+                    request = request.query(&[("query", query)]);
+                }
+                Method::POST => {
+                    let body = serde_urlencoded::to_string(&p).map_err(|err| {
+                        StripeError::InternalError(InternalError {
+                            message: format!("Failed to serialize form body: {:?}", err),
+                        })
+                    })?;
+                    request = request
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .body(body);
+                }
+                _ => {}
+            }
         }
 
         let res = request.send().await;
@@ -44,7 +64,7 @@ impl StripeClient {
         match res {
             Ok(response) => {
                 if response.status().is_success() {
-                    let parsed = response.json::<T>().await;
+                    let parsed = response.json::<R>().await;
                     match parsed {
                         Ok(data) => Ok(data),
                         Err(err) => {
@@ -56,6 +76,7 @@ impl StripeClient {
                     }
                 } else {
                     // Handle API errors
+                    dbg!(&response);
                     let error_response = response.json::<ApiError>().await.unwrap_or(ApiError {
                         error_type: "Unknown".to_string(),
                         message: "Unknown error occurred".to_string(),

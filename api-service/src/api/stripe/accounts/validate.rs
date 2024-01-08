@@ -31,13 +31,14 @@ pub async fn validate_account(
 
     let account = StripeAccountDb::get(&pool, user_id).await;
 
+    // TODO: check onboarding status separately
     let mut is_valid = false;
     if let Ok(account) = account {
         let account_id = AccountId::new(account.account_id);
         let stripe_account = Account::get_account(&stripe_client, &account_id).await;
         if let Ok(stripe_account) = stripe_account {
-            if let Some(details_submitted) = stripe_account.details_submitted {
-                is_valid = details_submitted;
+            if let Some(charges_enabled) = stripe_account.charges_enabled {
+                is_valid = charges_enabled;
             }
         }
     }

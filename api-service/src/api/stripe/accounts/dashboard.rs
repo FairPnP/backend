@@ -21,7 +21,7 @@ pub struct DashboardResponse {
 // ======================================================================
 // Route
 
-#[post("dashboard")]
+#[post("/dashboard")]
 pub async fn dashboard(
     req: HttpRequest,
     pool: web::Data<DbPool>,

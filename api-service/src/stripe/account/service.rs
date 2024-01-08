@@ -4,7 +4,9 @@ use serde::{Deserialize, Serialize};
 use super::super::client::StripeClient;
 use super::super::error::StripeError;
 
-use super::types::{AccountId, AccountLink, AccountRequirements, LoginLink};
+use super::types::{
+    AccountId, AccountLink, AccountRequirements, CreateAccountLink, CreateLoginLink, LoginLink,
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Account {
@@ -15,6 +17,9 @@ pub struct Account {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub details_submitted: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub charges_enabled: Option<bool>,
 }
 
 impl Account {
@@ -34,12 +39,12 @@ impl Account {
             .request(
                 Method::POST,
                 "/account_links",
-                Some(vec![
-                    ("account", account_id.as_str()),
-                    ("refresh_url", &client.refresh_url),
-                    ("return_url", &client.return_url),
-                    ("type", "account_onboarding"),
-                ]),
+                Some(CreateAccountLink {
+                    account: account_id.clone(),
+                    refresh_url: client.refresh_url.clone(),
+                    return_url: client.return_url.clone(),
+                    type_: "account_onboarding".to_string(),
+                }),
             )
             .await?;
 
@@ -53,8 +58,10 @@ impl Account {
         let login_link = client
             .request(
                 Method::POST,
-                &format!("/accounts/{}/login_links", account_id.as_str()),
-                None,
+                "/accounts/{}/login_links",
+                Some(CreateLoginLink {
+                    account: account_id.clone(),
+                }),
             )
             .await?;
 
@@ -66,7 +73,7 @@ impl Account {
         account_id: &AccountId,
     ) -> Result<Account, StripeError> {
         let res = client
-            .request(
+            .request::<Account, ()>(
                 Method::GET,
                 &format!("/accounts/{}", account_id.as_str()),
                 None,
