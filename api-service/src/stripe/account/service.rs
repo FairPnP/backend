@@ -56,12 +56,10 @@ impl Account {
         account_id: &AccountId,
     ) -> Result<LoginLink, StripeError> {
         let login_link = client
-            .request(
+            .request::<LoginLink, ()>(
                 Method::POST,
-                "/accounts/{}/login_links",
-                Some(CreateLoginLink {
-                    account: account_id.clone(),
-                }),
+                format!("/accounts/{}/login_links", account_id.as_str()).as_str(),
+                None,
             )
             .await?;
 
