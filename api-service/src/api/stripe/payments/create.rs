@@ -40,15 +40,12 @@ pub async fn create_payment(
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
 
-    println!("1");
     let customer = StripeCustomerDb::get(&pool, user_id).await;
     // if no customer, create one
     let customer = match customer {
         Ok(customer) => customer,
         Err(sqlx::Error::RowNotFound) => {
-            println!("2");
             let s_customer = Customer::create_customer(&stripe_client).await?;
-            println!("3");
             let customer = StripeCustomerDb::insert(&pool, user_id, s_customer.id.as_str()).await?;
 
             customer
@@ -56,12 +53,8 @@ pub async fn create_payment(
         Err(err) => return Err(err.into()),
     };
 
-    dbg!(&data);
-    println!("4");
     let customer_id = CustomerId::new(customer.customer_id);
-    println!("5");
     let ephemeral_key = Customer::create_ephemeral_key(&stripe_client, &customer_id).await?;
-    println!("6");
 
     // create payment intent
     let amount = data.amount;

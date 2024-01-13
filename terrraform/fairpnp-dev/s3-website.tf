@@ -122,3 +122,31 @@ resource "aws_s3_bucket_policy" "website_policy" {
     ],
   })
 }
+
+resource "aws_iam_policy" "website_rw_policy" {
+  for_each = local.websites
+
+  name        = "${local.namespace}-${each.key}-rw"
+  description = "Policy for ${each.key} website"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ],
+        Effect   = "Allow",
+        Resource = "${aws_s3_bucket.website[each.key].arn}/*",
+      },
+      {
+        Action = [
+          "s3:ListBucket"
+        ],
+        Effect   = "Allow",
+        Resource = aws_s3_bucket.website[each.key].arn,
+      }
+    ],
+  })
+}

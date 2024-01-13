@@ -3,6 +3,10 @@ locals {
     api_service = {
       generate_secret = true
       groups          = ["s3_user_content_upload"]
+    },
+    github_website_ci = {
+      generate_secret = true
+      groups          = ["website_write"]
     }
   }
 
@@ -10,6 +14,11 @@ locals {
     s3_user_content_upload = {
       policies = [
         aws_iam_policy.s3_user_content_upload_policy.arn
+      ]
+    },
+    website_write = {
+      policies = [
+        aws_iam_policy.website_rw_policy[local.cloudflare.domain].arn
       ]
     }
   }

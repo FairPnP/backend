@@ -4,9 +4,7 @@ use serde::{Deserialize, Serialize};
 use super::super::client::StripeClient;
 use super::super::error::StripeError;
 
-use super::types::{
-    AccountId, AccountLink, AccountRequirements, CreateAccountLink, CreateLoginLink, LoginLink,
-};
+use super::types::{AccountId, AccountLink, AccountRequirements, CreateAccountLink, LoginLink};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Account {
