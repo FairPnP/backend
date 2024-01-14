@@ -16,15 +16,15 @@ impl ReservationDb {
     pub async fn insert(
         pool: &DbPool,
         user_id: Uuid,
-        availability_id: i32,
+        space_id: i32,
         start_date: NaiveDateTime,
         end_date: NaiveDateTime,
     ) -> Result<Reservation, sqlx::Error> {
         let reservation = sqlx::query_as::<_, Reservation>(
-            "INSERT INTO reservations (user_id, availability_id, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING *",
+            "INSERT INTO reservations (user_id, space_id, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING *",
         )
         .bind(user_id)
-        .bind(availability_id)
+        .bind(space_id)
         .bind(start_date)
         .bind(end_date)
         .fetch_one(pool)
@@ -52,7 +52,7 @@ impl ReservationDb {
         offset_id: Option<i32>,
         limit: i32,
         user_id: Option<Uuid>,
-        availability_id: Option<i32>,
+        space_id: Option<i32>,
     ) -> Result<Vec<Reservation>, sqlx::Error> {
         let mut query = String::from("SELECT * FROM reservations");
 
@@ -60,8 +60,8 @@ impl ReservationDb {
         if let Some(ref uid) = user_id {
             conditions.push(format!("user_id = '{}'", uid));
         }
-        if let Some(ref bid) = availability_id {
-            conditions.push(format!("availability_id = '{}'", bid));
+        if let Some(ref bid) = space_id {
+            conditions.push(format!("space_id = '{}'", bid));
         }
         if let Some(oid) = offset_id {
             conditions.push(format!("id > {}", oid));
