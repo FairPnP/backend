@@ -1,9 +1,11 @@
 use crate::db::spaces::entities::Space;
 use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
 pub struct PublicSpace {
     pub id: i32,
+    pub user_id: Uuid,
     pub building_id: i32,
     pub name: String,
     pub description: Option<String>,
@@ -19,6 +21,7 @@ impl From<Space> for PublicSpace {
     fn from(space: Space) -> Self {
         PublicSpace {
             id: space.id,
+            user_id: space.user_id,
             building_id: space.building_id,
             name: space.name,
             description: space.description,

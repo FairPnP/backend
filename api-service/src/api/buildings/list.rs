@@ -15,7 +15,7 @@ use super::public::PublicBuilding;
 #[derive(Deserialize, Validate)]
 pub struct PaginationParams {
     offset_id: Option<i32>,
-    limit: Option<i64>,
+    limit: Option<i32>,
     // TODO: validate place_id
     #[validate(length(min = 16, max = 32))]
     place_id: Option<String>,
@@ -28,7 +28,7 @@ pub struct PaginationParams {
 pub struct ListBuildingsResponse {
     pub buildings: Vec<PublicBuilding>,
     pub next_offset_id: Option<i32>,
-    pub limit: i64,
+    pub limit: i32,
 }
 
 // ======================================================================
@@ -51,7 +51,7 @@ pub async fn list_buildings(
         query.ids,
     )
     .await?;
-    let next_offset_id = if buildings.len() as i64 == limit {
+    let next_offset_id = if buildings.len() as i32 == limit {
         buildings.last().map(|b| b.id)
     } else {
         None

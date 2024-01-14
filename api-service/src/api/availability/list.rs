@@ -18,7 +18,7 @@ pub struct PaginationParams {
     #[validate(range(min = 1))]
     offset_id: Option<i32>,
     #[validate(range(min = 1))]
-    limit: Option<i64>,
+    limit: Option<i32>,
     user: Option<bool>,
     #[validate(range(min = 1))]
     space_id: Option<i32>,
@@ -28,7 +28,7 @@ pub struct PaginationParams {
 pub struct ListAvailabilityResponse {
     pub availability: Vec<PublicAvailability>,
     pub next_offset_id: Option<i32>,
-    pub limit: i64,
+    pub limit: i32,
 }
 
 // ======================================================================
@@ -64,7 +64,7 @@ pub async fn list_availability(
         query.space_id.to_owned(),
     )
     .await?;
-    let next_offset_id = if availability.len() as i64 == limit {
+    let next_offset_id = if availability.len() as i32 == limit {
         availability.last().map(|b| b.id)
     } else {
         None

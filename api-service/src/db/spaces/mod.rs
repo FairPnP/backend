@@ -60,7 +60,7 @@ impl SpaceDb {
     pub async fn list(
         pool: &DbPool,
         offset_id: Option<i32>,
-        limit: i64,
+        limit: i32,
         user_id: Option<Uuid>,
         building_id: Option<String>,
     ) -> Result<Vec<Space>, sqlx::Error> {

@@ -18,7 +18,7 @@ pub struct PaginationParams {
     #[validate(range(min = 1))]
     offset_id: Option<i32>,
     #[validate(range(min = 1))]
-    limit: Option<i64>,
+    limit: Option<i32>,
     user: Option<bool>,
     #[validate(range(min = 1))]
     space_id: Option<i32>,
@@ -28,7 +28,7 @@ pub struct PaginationParams {
 pub struct ListReservationsResponse {
     pub reservations: Vec<PublicReservation>,
     pub next_offset_id: Option<i32>,
-    pub limit: i64,
+    pub limit: i32,
 }
 
 // ======================================================================
@@ -58,7 +58,7 @@ pub async fn list_reservations(
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
     let reservations =
         ReservationDb::list(&pool, query.offset_id, limit, user, query.space_id).await?;
-    let next_offset_id = if reservations.len() as i64 == limit {
+    let next_offset_id = if reservations.len() as i32 == limit {
         reservations.last().map(|b| b.id)
     } else {
         None

@@ -46,7 +46,7 @@ impl BuildingDb {
     pub async fn list(
         pool: &DbPool,
         offset_id: Option<i32>,
-        limit: i64,
+        limit: i32,
         place_id: Option<String>,
         ids: Option<Vec<i32>>,
     ) -> Result<Vec<Building>, sqlx::Error> {

@@ -53,7 +53,7 @@ impl AvailabilityDb {
     pub async fn list(
         pool: &DbPool,
         offset_id: Option<i32>,
-        limit: i64,
+        limit: i32,
         user_id: Option<Uuid>,
         space_id: Option<i32>,
     ) -> Result<Vec<Availability>, sqlx::Error> {

@@ -25,6 +25,10 @@ pub async fn reset_database(
         ("reservations", "2023-12-11-210723_create_reservations"),
         ("stripe_accounts", "2024-01-05_create_stripe_accounts"),
         ("stripe_customers", "2024-01-08_create_stripe_customers"),
+        (
+            "reservation_chat_messages",
+            "2024-01-13_create_reservation_chat_messages",
+        ),
     ]);
 
     // get migration path
@@ -40,7 +44,7 @@ pub async fn reset_database(
     // Run the down.sql script
     let down_script =
         fs::read_to_string(format!("{}/down.sql", path)).expect("Failed to read down script");
-    let statements = down_script.split(";"); // Simple split by semicolon
+    let statements = down_script.split(";");
 
     for statement in statements {
         if statement.trim().is_empty() {
@@ -60,7 +64,7 @@ pub async fn reset_database(
     // Run the up.sql script
     let up_script =
         fs::read_to_string(format!("{}/up.sql", path)).expect("Failed to read up script");
-    let statements = up_script.split(";"); // Simple split by semicolon
+    let statements = up_script.split(";");
 
     for statement in statements {
         if statement.trim().is_empty() {
