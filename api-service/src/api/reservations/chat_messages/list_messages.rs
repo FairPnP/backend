@@ -57,7 +57,7 @@ pub async fn list_chat_messages(
 
     // limit default to 20, max 50
     let limit = query.limit.map_or(20, |l| if l > 50 { 50 } else { l });
-    let messages = ReservationChatMessageDb::list(
+    let messages = ReservationChatMessageDb::list_messages(
         &pool,
         reservation_id.clone(),
         query.before_id,

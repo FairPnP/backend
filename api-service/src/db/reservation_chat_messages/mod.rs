@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use uuid::Uuid;
 
-use self::entities::ReservationChatMessage;
+use self::entities::{ConversationSummary, ReservationChatMessage};
 
 use super::DbPool;
 
@@ -81,7 +81,7 @@ impl ReservationChatMessageDb {
     // ======================================================================
     // List
 
-    pub async fn list(
+    pub async fn list_messages(
         pool: &DbPool,
         reservation_id: i32,
         before_id: Option<i32>,
@@ -107,5 +107,102 @@ impl ReservationChatMessageDb {
             .await?;
 
         Ok(messages)
+    }
+
+    pub async fn list_conversations_for_guest(
+        pool: &DbPool,
+        user_id: Uuid,
+        offset_id: Option<i32>,
+        limit: i32,
+    ) -> Result<Vec<ConversationSummary>, sqlx::Error> {
+        let mut query = String::from(
+            r#"
+            SELECT r.id as reservation_id, 
+                   r.user_id, 
+                   latest_message.id as message_id, 
+                   latest_message.message, 
+                   latest_message.created_at
+            FROM reservations r
+            LEFT JOIN LATERAL (
+                SELECT m.id, m.message, m.created_at
+                FROM reservation_chat_messages m
+                WHERE m.reservation_id = r.id
+                ORDER BY m.created_at DESC
+                LIMIT 1
+            ) latest_message ON true
+            WHERE r.user_id = $1
+            AND EXISTS (
+                SELECT 1
+                FROM reservation_chat_messages m
+                WHERE m.reservation_id = r.id
+            )
+        "#,
+        );
+
+        // Add conditions for offset_id and limit
+        if let Some(oid) = offset_id {
+            query.push_str(&format!(" AND r.id > {}", oid));
+        }
+        query.push_str(&format!(
+            " ORDER BY latest_message.created_at DESC, r.id ASC LIMIT {}",
+            limit
+        ));
+
+        let conversations = sqlx::query_as::<_, ConversationSummary>(&query)
+            .bind(user_id)
+            .bind(limit)
+            .fetch_all(pool)
+            .await?;
+
+        Ok(conversations)
+    }
+
+    pub async fn list_conversations_for_host(
+        pool: &DbPool,
+        user_id: Uuid,
+        offset_id: Option<i32>,
+        limit: i32,
+    ) -> Result<Vec<ConversationSummary>, sqlx::Error> {
+        let mut query = String::from(
+            r#"
+            SELECT r.id as reservation_id, 
+                   r.user_id, 
+                   latest_message.id as message_id, 
+                   latest_message.message, 
+                   latest_message.created_at
+            FROM reservations r
+            INNER JOIN spaces s ON r.space_id = s.id
+            LEFT JOIN LATERAL (
+                SELECT m.id, m.message, m.created_at
+                FROM reservation_chat_messages m
+                WHERE m.reservation_id = r.id
+                ORDER BY m.created_at DESC
+                LIMIT 1
+            ) latest_message ON true
+            WHERE s.user_id = $1
+            AND EXISTS (
+                SELECT 1
+                FROM reservation_chat_messages m
+                WHERE m.reservation_id = r.id
+            )
+        "#,
+        );
+
+        // Add conditions for offset_id and limit
+        if let Some(oid) = offset_id {
+            query.push_str(&format!(" AND r.id > {}", oid));
+        }
+        query.push_str(&format!(
+            " ORDER BY latest_message.created_at DESC, r.id ASC LIMIT {}",
+            limit
+        ));
+
+        let conversations = sqlx::query_as::<_, ConversationSummary>(&query)
+            .bind(user_id)
+            .bind(limit)
+            .fetch_all(pool)
+            .await?;
+
+        Ok(conversations)
     }
 }
