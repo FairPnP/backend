@@ -27,9 +27,9 @@ impl From<ReservationChatMessage> for PublicChatMessage {
 pub struct PublicConversationSummary {
     pub reservation_id: i32,
     pub user_id: Uuid,
-    pub message_id: Option<i32>,
-    pub message: Option<String>,
-    pub created_at: Option<NaiveDateTime>,
+    pub message_id: i32,
+    pub message: String,
+    pub created_at: NaiveDateTime,
 }
 
 impl From<ConversationSummary> for PublicConversationSummary {
