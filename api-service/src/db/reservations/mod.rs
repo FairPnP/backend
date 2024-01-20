@@ -81,6 +81,30 @@ impl ReservationDb {
         Ok(reservations)
     }
 
+    pub async fn list_for_host(
+        pool: &DbPool,
+        host_user_id: Uuid,
+        offset_id: Option<i32>,
+        limit: i32,
+    ) -> Result<Vec<Reservation>, sqlx::Error> {
+        let mut query = String::from(
+            "SELECT r.* FROM reservations r INNER JOIN spaces s ON r.space_id = s.id WHERE s.user_id = $1",
+        );
+
+        if let Some(oid) = offset_id {
+            query.push_str(&format!(" AND r.id > {}", oid));
+        }
+
+        query.push_str(&format!(" ORDER BY r.id ASC LIMIT {}", limit));
+
+        let reservations = sqlx::query_as::<_, Reservation>(&query)
+            .bind(host_user_id)
+            .fetch_all(pool)
+            .await?;
+
+        Ok(reservations)
+    }
+
     // ======================================================================
     // Update
 
