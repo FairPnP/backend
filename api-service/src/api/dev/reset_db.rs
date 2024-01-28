@@ -29,6 +29,7 @@ pub async fn reset_database(
             "reservation_chat_messages",
             "2024-01-13_create_reservation_chat_messages",
         ),
+        ("space_images", "2024-01-28_space_images"),
     ]);
 
     // get migration path
