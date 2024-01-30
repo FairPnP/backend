@@ -1,7 +1,7 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{spaces::SpaceDb, DbPool},
+    db::{space_images::SpaceImageDb, spaces::SpaceDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};
@@ -70,8 +70,24 @@ pub async fn list_spaces(
         None
     };
 
+    let ids = spaces.iter().map(|s| s.id).collect::<Vec<i32>>();
+    // get the space images
+    let img_map = SpaceImageDb::list_for_spaces(&pool, &ids).await?;
+    // populate the img_urls field
+    let spaces = spaces
+        .into_iter()
+        .map(|s| {
+            let mut s = PublicSpace::from(s);
+            s.img_urls = img_map
+                .get(&s.id)
+                .map(|imgs| imgs.iter().map(|img| img.img_url.to_owned()).collect())
+                .unwrap_or_default();
+            s
+        })
+        .collect::<Vec<PublicSpace>>();
+
     Ok(HttpResponse::Ok().json(ListSpacesResponse {
-        spaces: spaces.into_iter().map(PublicSpace::from).collect(),
+        spaces,
         next_offset_id,
         limit,
     }))

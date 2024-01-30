@@ -38,7 +38,7 @@ pub struct PendingSpaceImage {
 
 #[derive(Debug, Serialize)]
 pub struct PresignedUrlResponse {
-    pub url: Vec<PendingSpaceImage>,
+    pub data: Vec<PendingSpaceImage>,
 }
 
 #[post("")]
@@ -58,7 +58,7 @@ pub async fn create_space_image(
     }
 
     // get images
-    let space_images = SpaceImageDb::list(&pool, space_id).await?;
+    let space_images = SpaceImageDb::list_for_space(&pool, space_id).await?;
 
     // make sure there will be 5 or less images
     if space_images.len() as i32 + num_new_images > 5 {
@@ -132,6 +132,6 @@ pub async fn create_space_image(
     }
 
     Ok(HttpResponse::Ok().json(PresignedUrlResponse {
-        url: pending_images,
+        data: pending_images,
     }))
 }

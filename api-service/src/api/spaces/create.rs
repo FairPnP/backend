@@ -20,7 +20,6 @@ pub struct CreateSpaceRequest {
     #[validate(length(min = 1, max = 255))]
     pub name: String,
     pub description: Option<String>,
-    pub picture_url: Option<String>,
     #[validate(length(min = 1))]
     pub max_vehicle_size: String,
     #[validate(length(min = 1))]
@@ -53,7 +52,6 @@ pub async fn create_space(
         data.building_id,
         data.name.to_owned(),
         data.description,
-        data.picture_url,
         data.max_vehicle_size,
         data.coverage,
         data.height_clearance_cm,

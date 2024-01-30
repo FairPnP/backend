@@ -32,7 +32,7 @@ pub async fn list_space_images(
 ) -> Result<HttpResponse, ServiceError> {
     let query = validate_req_data(query.into_inner())?;
 
-    let space_images = SpaceImageDb::list(&pool, query.space_id).await?;
+    let space_images = SpaceImageDb::list_for_space(&pool, query.space_id).await?;
 
     Ok(HttpResponse::Ok().json(ListSpaceImagesResponse {
         space_images: space_images

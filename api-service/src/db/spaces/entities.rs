@@ -12,7 +12,6 @@ pub struct Space {
     pub building_id: i32,
     pub name: String,
     pub description: Option<String>,
-    pub picture_url: Option<String>,
     pub max_vehicle_size: String,
     pub coverage: String,
     pub height_clearance_cm: Option<i32>,

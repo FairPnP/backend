@@ -6,7 +6,7 @@ CREATE TABLE space_images (
     img_url text NOT NULL,
     status image_status NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    last_modified TIMESTAMP NOT NULL DEFAULT NOW()
+    last_modified TIMESTAMP NOT NULL DEFAULT NOW(),
 
     CONSTRAINT unique_space_slot UNIQUE (space_id, slot_id)
 );

@@ -18,7 +18,6 @@ impl SpaceDb {
         building_id: i32,
         name: String,
         description: Option<String>,
-        picture_url: Option<String>,
         max_vehicle_size: String,
         coverage: String,
         height_clearance_cm: Option<i32>,
@@ -26,13 +25,12 @@ impl SpaceDb {
         parking_instructions: Option<String>,
     ) -> Result<Space, sqlx::Error> {
         let space = sqlx::query_as::<_, Space>(
-            "INSERT INTO spaces (user_id, building_id, name, description, picture_url, max_vehicle_size, coverage, height_clearance_cm, access_restrictions, parking_instructions) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
+            "INSERT INTO spaces (user_id, building_id, name, description, max_vehicle_size, coverage, height_clearance_cm, access_restrictions, parking_instructions) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
         )
         .bind(user_id)
         .bind(building_id)
         .bind(&name)
         .bind(description)
-        .bind(picture_url)
         .bind(max_vehicle_size)
         .bind(coverage)
         .bind(height_clearance_cm)
@@ -98,7 +96,6 @@ impl SpaceDb {
         user_id: Uuid,
         name: Option<String>,
         description: Option<String>,
-        picture_url: Option<String>,
         max_vehicle_size: Option<String>,
         coverage: Option<String>,
         height_clearance_cm: Option<Option<i32>>, // Double Option to allow setting the field to NULL
@@ -109,18 +106,16 @@ impl SpaceDb {
             "UPDATE spaces SET 
                 name = COALESCE($1, name), 
                 description = COALESCE($2, description), 
-                picture_url = COALESCE($3, picture_url), 
-                max_vehicle_size = COALESCE($4, max_vehicle_size), 
-                coverage = COALESCE($5, coverage), 
-                height_clearance_cm = COALESCE($6, height_clearance_cm), 
-                access_restrictions = COALESCE($7, access_restrictions), 
-                parking_instructions = COALESCE($8, parking_instructions)
-             WHERE id = $9 AND user_id = $10 
+                max_vehicle_size = COALESCE($3, max_vehicle_size), 
+                coverage = COALESCE($4, coverage), 
+                height_clearance_cm = COALESCE($5, height_clearance_cm), 
+                access_restrictions = COALESCE($6, access_restrictions), 
+                parking_instructions = COALESCE($7, parking_instructions)
+             WHERE id = $8 AND user_id = $9 
              RETURNING *",
         )
         .bind(name)
         .bind(description)
-        .bind(picture_url)
         .bind(max_vehicle_size)
         .bind(coverage)
         .bind(height_clearance_cm)

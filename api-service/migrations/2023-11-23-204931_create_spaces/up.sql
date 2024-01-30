@@ -4,7 +4,6 @@ CREATE TABLE spaces (
   building_id INTEGER NOT NULL,
   name VARCHAR NOT NULL,
   description TEXT,
-  picture_url VARCHAR,
   max_vehicle_size VARCHAR NOT NULL,
   coverage VARCHAR NOT NULL CHECK (coverage IN ('outdoor', 'outdoor-covered', 'indoor')), 
   height_clearance_cm INTEGER, 
