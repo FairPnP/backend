@@ -9,7 +9,7 @@ mod s3;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/images")
+        web::scope("/space_images/v1")
             .service(read::read_space_image)
             .service(complete::complete_space_image)
             .service(delete::delete_space_image)

@@ -1,13 +1,13 @@
 use crate::{
     api::validation::validate_req_data,
-    db::{spaces::images::SpaceImageDb, DbPool},
+    db::{spaces::reviews::SpaceReviewDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use super::public::PublicSpaceImage;
+use super::public::PublicSpaceReview;
 
 // ======================================================================
 // DTOs
@@ -15,29 +15,35 @@ use super::public::PublicSpaceImage;
 #[derive(Deserialize, Validate)]
 pub struct PaginationParams {
     space_id: i32,
+    #[validate(range(min = 1))]
+    offset_id: Option<i32>,
+    #[validate(range(min = 1))]
+    limit: Option<i32>,
 }
 
 #[derive(Debug, Serialize)]
-pub struct ListSpaceImagesResponse {
-    pub space_images: Vec<PublicSpaceImage>,
+pub struct ListSpaceReviewsResponse {
+    pub space_reviews: Vec<PublicSpaceReview>,
 }
 
 // ======================================================================
 // Route
 
 #[get("")]
-pub async fn list_space_images(
+pub async fn list_space_reviews(
     pool: web::Data<DbPool>,
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse, ServiceError> {
     let query = validate_req_data(query.into_inner())?;
 
-    let space_images = SpaceImageDb::list_for_space(&pool, query.space_id).await?;
+    let limit = query.limit.unwrap_or(10);
 
-    Ok(HttpResponse::Ok().json(ListSpaceImagesResponse {
-        space_images: space_images
+    let space_reviews = SpaceReviewDb::list(&pool, query.space_id, limit, query.offset_id).await?;
+
+    Ok(HttpResponse::Ok().json(ListSpaceReviewsResponse {
+        space_reviews: space_reviews
             .into_iter()
-            .map(PublicSpaceImage::from)
+            .map(PublicSpaceReview::from)
             .collect(),
     }))
 }

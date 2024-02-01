@@ -15,7 +15,6 @@ pub async fn reset_database(
         ("shared", "00000000000001_shared"),
         ("buildings", "2023-11-23-203951_create_buildings"),
         ("user_profiles", "2023-11-23-204915_create_user_profiles"),
-        ("user_ratings", "2023-11-23-204922_create_user_ratings"),
         ("spaces", "2023-11-23-204931_create_spaces"),
         (
             "space_favorites",
@@ -30,6 +29,10 @@ pub async fn reset_database(
             "2024-01-13_create_reservation_chat_messages",
         ),
         ("space_images", "2024-01-28_space_images"),
+        ("space_reviews", "2024-02-01_space_reviews"),
+        ("space_summaries", "2024-02-01_space_summaries"),
+        ("user_reviews", "2024-02-01_user_reviews"),
+        ("user_summaries", "2024-02-01_user_summaries"),
     ]);
 
     // get migration path

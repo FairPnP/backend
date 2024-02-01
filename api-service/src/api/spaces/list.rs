@@ -1,7 +1,10 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{space_images::SpaceImageDb, spaces::SpaceDb, DbPool},
+    db::{
+        spaces::{images::SpaceImageDb, SpaceDb},
+        DbPool,
+    },
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};

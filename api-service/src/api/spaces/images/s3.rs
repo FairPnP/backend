@@ -11,7 +11,7 @@ use crate::{
     auth::user::get_user_id,
     db::{
         s3::{get_aws_region, get_credentials},
-        space_images::{entities::SpaceImageStatus, SpaceImageDb},
+        spaces::images::{entities::SpaceImageStatus, SpaceImageDb},
         spaces::SpaceDb,
         DbPool,
     },

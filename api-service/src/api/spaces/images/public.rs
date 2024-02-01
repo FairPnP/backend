@@ -1,4 +1,4 @@
-use crate::db::space_images::entities::SpaceImage;
+use crate::db::spaces::images::entities::SpaceImage;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]

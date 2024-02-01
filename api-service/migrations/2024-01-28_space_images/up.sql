@@ -8,7 +8,7 @@ CREATE TABLE space_images (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     last_modified TIMESTAMP NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT unique_space_slot UNIQUE (space_id, slot_id)
+    CONSTRAINT space_images_unique_space_slot UNIQUE (space_id, slot_id)
 );
 
 CREATE INDEX idx_space_images_space_id ON space_images(space_id);

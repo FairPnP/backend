@@ -2,7 +2,7 @@ use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
     db::{
-        space_images::{entities::SpaceImageStatus, SpaceImageDb},
+        spaces::images::{entities::SpaceImageStatus, SpaceImageDb},
         spaces::SpaceDb,
         DbPool,
     },

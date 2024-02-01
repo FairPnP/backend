@@ -5,6 +5,9 @@ use self::entities::Space;
 use super::DbPool;
 
 pub mod entities;
+pub mod images;
+pub mod reviews;
+pub mod summaries;
 
 pub struct SpaceDb {}
 
