@@ -40,15 +40,8 @@ pub async fn update_space_review(
     let data = validate_req_data(data.into_inner())?;
     let space_id = space_id.into_inner();
 
-    // get space review
-    let space_review = SpaceReviewDb::get(&pool, space_id).await?;
-    // check if user is owner
-    if space_review.user_id != user_id {
-        return Err(ServiceError::Unauthorized);
-    }
-
     let updated_space_review =
-        SpaceReviewDb::update(&pool, space_id, data.message, data.stars).await?;
+        SpaceReviewDb::update(&pool, user_id, space_id, data.message, data.stars).await?;
     Ok(HttpResponse::Ok().json(UpdateSpaceReviewResponse {
         space_review: updated_space_review.into(),
     }))

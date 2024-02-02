@@ -1,9 +1,6 @@
 use crate::{
     auth::user::get_user_id,
-    db::{
-        spaces::{reviews::SpaceReviewDb, SpaceDb},
-        DbPool,
-    },
+    db::{spaces::reviews::SpaceReviewDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{delete, web, HttpResponse};
@@ -19,14 +16,6 @@ pub async fn delete_space_review(
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
 
-    let space_review = SpaceReviewDb::get(&pool, *space_review_id).await?;
-
-    let space = SpaceDb::get(&pool, space_review.space_id).await?;
-    // if user is not the owner of the space, return unauthorized
-    if space.user_id != user_id {
-        return Err(ServiceError::Unauthorized);
-    }
-
-    SpaceReviewDb::delete(&pool, *space_review_id).await?;
+    SpaceReviewDb::delete(&pool, user_id, *space_review_id).await?;
     Ok(HttpResponse::Ok().finish())
 }

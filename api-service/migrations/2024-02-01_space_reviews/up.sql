@@ -12,6 +12,7 @@ CREATE TABLE space_reviews (
 
 CREATE INDEX idx_space_reviews_user_id ON space_reviews(user_id);
 CREATE INDEX idx_space_reviews_space_id ON space_reviews(space_id);
+CREATE INDEX idx_user_space_reviews ON space_reviews(user_id, space_id);
 
 CREATE TRIGGER update_space_reviews_modtime
 BEFORE UPDATE ON space_reviews

@@ -42,12 +42,15 @@ impl SpaceReviewDb {
             Some(summary) => {
                 // Update the existing summary
                 let new_total_reviews = summary.total_reviews + 1;
-                let new_average_stars = ((summary.average_stars * summary.total_reviews) + stars)
-                    as f64
-                    / new_total_reviews as f64;
+                let total_stars =
+                    (summary.average_stars as f64 / 100.0) * summary.total_reviews as f64;
 
                 // average stars is stored as i32, decimal place moved over 2
-                let new_average_stars = (new_average_stars * 100.0).round() as i32;
+                let new_average_stars = ((total_stars + review.stars as f64)
+                    / new_total_reviews as f64
+                    * 100.0)
+                    .round() as i32;
+
                 sqlx::query("UPDATE space_summaries SET total_reviews = $1, average_stars = $2 WHERE space_id = $3")
                     .bind(new_total_reviews)
                     .bind(new_average_stars)
@@ -82,12 +85,18 @@ impl SpaceReviewDb {
     // ======================================================================
     // Read
 
-    pub async fn get(pool: &DbPool, space_id: i32) -> Result<SpaceReview, sqlx::Error> {
-        let space_review =
-            sqlx::query_as::<_, SpaceReview>("SELECT * FROM space_reviews WHERE space_id = $1")
-                .bind(space_id)
-                .fetch_one(pool)
-                .await?;
+    pub async fn get(
+        pool: &DbPool,
+        user_id: Uuid,
+        space_id: i32,
+    ) -> Result<SpaceReview, sqlx::Error> {
+        let space_review = sqlx::query_as::<_, SpaceReview>(
+            "SELECT * FROM space_reviews WHERE user_id = $1 AND space_id = $2",
+        )
+        .bind(user_id)
+        .bind(space_id)
+        .fetch_one(pool)
+        .await?;
 
         Ok(space_review)
     }
@@ -121,6 +130,7 @@ impl SpaceReviewDb {
 
     pub async fn update(
         pool: &DbPool,
+        user_id: Uuid,
         space_id: i32,
         message: Option<String>,
         stars: Option<i32>,
@@ -130,16 +140,18 @@ impl SpaceReviewDb {
         let space_review = match stars {
             Some(stars) => {
                 let original_review = sqlx::query_as::<_, SpaceReview>(
-                    "SELECT * FROM space_reviews WHERE space_id = $1",
+                    "SELECT * FROM space_reviews WHERE user_id = $1 AND space_id = $2",
                 )
+                .bind(user_id)
                 .bind(space_id)
                 .fetch_one(&mut *tx)
                 .await?;
 
                 let new_review = sqlx::query_as::<_, SpaceReview>(
-            "UPDATE space_reviews SET message = COALESCE($1, message), stars = COALESCE($2, stars) WHERE space_id = $3 RETURNING *")
+            "UPDATE space_reviews SET message = COALESCE($1, message), stars = COALESCE($2, stars) WHERE user_id = $3 AND space_id = $4 RETURNING *")
             .bind(message)
             .bind(stars)
+            .bind(user_id)
             .bind(space_id)
             .fetch_one(&mut *tx)
             .await?;
@@ -172,8 +184,9 @@ impl SpaceReviewDb {
             }
             None => {
                 let new_review = sqlx::query_as::<_, SpaceReview>(
-            "UPDATE space_reviews SET message = COALESCE($1, message) WHERE space_id = $2 RETURNING *")
+            "UPDATE space_reviews SET message = COALESCE($1, message) WHERE user_id = $2 AND space_id = $3 RETURNING *")
             .bind(message)
+            .bind(user_id)
             .bind(space_id)
             .fetch_one(&mut *tx)
             .await?;
@@ -190,17 +203,20 @@ impl SpaceReviewDb {
     // ======================================================================
     // Delete
 
-    pub async fn delete(pool: &DbPool, space_id: i32) -> Result<(), sqlx::Error> {
+    pub async fn delete(pool: &DbPool, user_id: Uuid, space_id: i32) -> Result<(), sqlx::Error> {
         let mut tx = pool.begin().await?;
 
         // get original review
-        let original_review =
-            sqlx::query_as::<_, SpaceReview>("SELECT * FROM space_reviews WHERE space_id = $1")
-                .bind(space_id)
-                .fetch_one(&mut *tx)
-                .await?;
+        let original_review = sqlx::query_as::<_, SpaceReview>(
+            "SELECT * FROM space_reviews WHERE user_id = $1 AND space_id = $2",
+        )
+        .bind(user_id)
+        .bind(space_id)
+        .fetch_one(&mut *tx)
+        .await?;
 
-        sqlx::query("DELETE FROM space_reviews WHERE space_id = $1")
+        sqlx::query("DELETE FROM space_reviews WHERE user_id = $1 AND space_id = $2")
+            .bind(user_id)
             .bind(space_id)
             .execute(&mut *tx)
             .await?;
