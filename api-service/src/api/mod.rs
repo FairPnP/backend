@@ -6,6 +6,7 @@ mod dev;
 mod reservations;
 mod spaces;
 mod stripe;
+mod users;
 mod validation;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
@@ -16,6 +17,8 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .configure(spaces::images::config)
             .configure(spaces::reviews::config)
             .configure(spaces::summaries::config)
+            .configure(users::reviews::config)
+            .configure(users::summaries::config)
             .configure(reservations::config)
             .configure(availability::config)
             .configure(stripe::config)
