@@ -17,6 +17,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .configure(spaces::images::config)
             .configure(spaces::reviews::config)
             .configure(spaces::summaries::config)
+            .configure(users::profiles::config)
             .configure(users::reviews::config)
             .configure(users::summaries::config)
             .configure(reservations::config)

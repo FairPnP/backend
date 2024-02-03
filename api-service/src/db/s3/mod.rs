@@ -7,6 +7,8 @@ use std::env;
 
 use crate::error::ServiceError;
 
+pub mod presigned;
+
 pub fn get_aws_region() -> Region {
     env::var("AWS_REGION")
         .expect("AWS_REGION must be set")

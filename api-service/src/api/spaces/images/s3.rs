@@ -1,16 +1,14 @@
 use actix_web::{post, web, HttpRequest, HttpResponse};
-use rusoto_s3::{
-    util::{PreSignedRequest, PreSignedRequestOption},
-    PutObjectRequest,
-};
 use serde::{Deserialize, Serialize};
-use std::env;
 use validator::Validate;
 
 use crate::{
     auth::user::get_user_id,
     db::{
-        s3::{get_aws_region, get_credentials},
+        s3::{
+            get_aws_region, get_credentials,
+            presigned::{get_public_url, get_user_url},
+        },
         spaces::images::{entities::SpaceImageStatus, SpaceImageDb},
         spaces::SpaceDb,
         DbPool,
@@ -71,26 +69,12 @@ pub async fn create_space_image(
     let credentials = get_credentials();
 
     let mut presigned_urls = Vec::with_capacity(num_new_images as usize);
-    let bucket = env::var("S3_BUCKET_USER_CONTENT").expect("S3_BUCKET_USER_CONTENT must be set");
-
     for _i in 0..num_new_images {
         let uuid = uuid::Uuid::new_v4();
-        let object_key = format!(
-            "user-uploads/{}/spaces/{}/images/{}.jpg",
-            user_id, space_id, uuid
-        );
+        let path = format!("spaces/{}/images/{}.jpg", space_id, uuid);
 
-        let options = PreSignedRequestOption {
-            expires_in: std::time::Duration::from_secs(60),
-        };
-        let req = PutObjectRequest {
-            bucket: bucket.clone(),
-            key: object_key.clone(),
-            ..Default::default()
-        };
-
-        let url = req.get_presigned_url(&region, &credentials, &options);
-        presigned_urls.push((object_key, url));
+        let url = get_user_url(&region, &credentials, user_id, &path);
+        presigned_urls.push(url);
     }
 
     // create pending space images
@@ -105,12 +89,7 @@ pub async fn create_space_image(
             .is_none()
         {
             let presigned_url = &presigned_urls[current_url];
-            let public_url = format!(
-                "https://{}.s3.{}.amazonaws.com/{}",
-                bucket,
-                region.name(),
-                presigned_url.0,
-            );
+            let public_url = get_public_url(&region, &presigned_url.object_key);
 
             let space_image = SpaceImageDb::insert(
                 &pool,
@@ -124,7 +103,7 @@ pub async fn create_space_image(
             pending_images.push(PendingSpaceImage {
                 space_image_id: space_image.id,
                 slot_id,
-                presigned_url: presigned_url.1.clone(),
+                presigned_url: presigned_url.url.clone(),
             });
 
             current_url += 1;
