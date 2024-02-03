@@ -4,7 +4,10 @@ use uuid::Uuid;
 
 use crate::{
     auth::user::get_user_id,
-    db::s3::{get_aws_region, get_credentials, presigned::get_user_url},
+    db::s3::{
+        get_aws_region, get_credentials,
+        presigned::{get_public_url, get_user_url},
+    },
     error::ServiceError,
 };
 
@@ -15,7 +18,8 @@ use super::S3_BUCKET_AVATAR_PATH;
 
 #[derive(Debug, Serialize)]
 pub struct PresignedUrlResponse {
-    pub url: String,
+    pub upload_url: String,
+    pub fetch_url: String,
 }
 
 #[post("/avatar")]
@@ -28,5 +32,8 @@ pub async fn create_avatar_presigned_url(req: HttpRequest) -> Result<HttpRespons
     let path = format!("{}/{}", S3_BUCKET_AVATAR_PATH, Uuid::new_v4());
     let url = get_user_url(&region, &credentials, user_id, &path);
 
-    Ok(HttpResponse::Ok().json(PresignedUrlResponse { url: url.url }))
+    Ok(HttpResponse::Ok().json(PresignedUrlResponse {
+        upload_url: url.url,
+        fetch_url: get_public_url(&get_aws_region(), &url.object_key),
+    }))
 }
