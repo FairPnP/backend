@@ -39,7 +39,7 @@ pub struct PresignedUrlResponse {
     pub data: Vec<PendingSpaceImage>,
 }
 
-#[post("")]
+#[post("/images")]
 pub async fn create_space_image(
     pool: web::Data<DbPool>,
     req: HttpRequest,
