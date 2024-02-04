@@ -24,7 +24,7 @@ pub struct UpdateSpaceImageRequest {
 // ======================================================================
 // Route
 
-#[put("/complete")]
+#[put("images/complete")]
 pub async fn complete_space_image(
     pool: web::Data<DbPool>,
     req: actix_web::HttpRequest,
