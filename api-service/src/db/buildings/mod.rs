@@ -18,13 +18,25 @@ impl BuildingDb {
         place_id: String,
         latitude: BigDecimal,
         longitude: BigDecimal,
+        street_number: String,
+        street_name: String,
+        city: String,
+        state: String,
+        postal_code: String,
+        country: String,
     ) -> Result<Building, sqlx::Error> {
         let building = sqlx::query_as::<_, Building>(
-      "INSERT INTO buildings (name, place_id, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING *")
+    "INSERT INTO buildings (name, place_id, latitude, longitude, street_number, street_name, city, state, postal_code, country) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *")
       .bind(&name)
       .bind(&place_id)
       .bind(latitude)
       .bind(longitude)
+      .bind(&street_number)
+      .bind(&street_name)
+      .bind(&city)
+      .bind(&state)
+      .bind(&postal_code)
+      .bind(&country)
       .fetch_one(pool)
       .await?.into();
 

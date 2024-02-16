@@ -1,7 +1,10 @@
 use crate::{
-    api::{buildings::public::PublicBuilding, validation::validate_req_data},
+    api::validation::validate_req_data,
     db::{
-        availability::{entities::SpaceResult, AvailabilityDb},
+        availability::{
+            entities::{BuildingResult, SpaceResult},
+            AvailabilityDb,
+        },
         DbPool,
     },
     error::ServiceError,
@@ -29,7 +32,7 @@ pub struct SearchAvailabilityRequest {
 
 #[derive(Debug, Serialize)]
 pub struct SearchAvailabilityResponse {
-    pub buildings: Vec<PublicBuilding>,
+    pub buildings: Vec<BuildingResult>,
     pub spaces: Vec<SpaceResult>,
     pub availabilities: Vec<PublicAvailability>,
 }
@@ -65,7 +68,7 @@ pub async fn search_availability(
     )
     .await?;
 
-    let mut buildings: Vec<PublicBuilding> = Vec::new();
+    let mut buildings: Vec<BuildingResult> = Vec::new();
     let mut spaces: Vec<SpaceResult> = Vec::new();
     let mut availabilities: Vec<PublicAvailability> = Vec::new();
 
@@ -75,13 +78,7 @@ pub async fn search_availability(
         let availability = result.availability;
 
         if !buildings.iter().any(|b| b.id == building.id) {
-            buildings.push(PublicBuilding {
-                id: building.id,
-                name: building.name,
-                place_id: building.place_id,
-                latitude: building.latitude,
-                longitude: building.longitude,
-            });
+            buildings.push(building);
         }
 
         if !spaces.iter().any(|s| s.id == space.id) {

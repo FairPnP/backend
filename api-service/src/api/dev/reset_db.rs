@@ -68,7 +68,10 @@ pub async fn reset_database(
     // Run the up.sql script
     let up_script =
         fs::read_to_string(format!("{}/up.sql", path)).expect("Failed to read up script");
-    let statements = up_script.split(";");
+    let mut statements = up_script.split(";");
+    if table_name.as_str() == "shared" {
+        statements = up_script.split("?");
+    }
 
     for statement in statements {
         if statement.trim().is_empty() {

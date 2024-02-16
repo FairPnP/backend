@@ -12,6 +12,12 @@ pub struct Building {
     pub place_id: String,
     pub latitude: BigDecimal,
     pub longitude: BigDecimal,
+    pub street_number: String,
+    pub street_name: String,
+    pub city: String,
+    pub state: String,
+    pub postal_code: String,
+    pub country: String,
     pub last_modified: NaiveDateTime,
     pub created_at: NaiveDateTime,
 }

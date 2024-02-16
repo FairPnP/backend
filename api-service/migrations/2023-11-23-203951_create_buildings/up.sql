@@ -4,6 +4,12 @@ CREATE TABLE buildings (
   place_id varchar NOT NULL UNIQUE,
   latitude DECIMAL(9, 6) NOT NULL,
   longitude DECIMAL(9, 6) NOT NULL,
+  street_number varchar NOT NULL,
+  street_name varchar NOT NULL,
+  city varchar NOT NULL,
+  state varchar NOT NULL,
+  postal_code varchar NOT NULL,
+  country varchar NOT NULL,
   last_modified timestamp NOT NULL DEFAULT (now()),
   created_at timestamp NOT NULL DEFAULT (now())
 );

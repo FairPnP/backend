@@ -19,14 +19,14 @@ pub struct Availability {
     pub last_modified: NaiveDateTime,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct SearchResult {
     pub building: BuildingResult,
     pub space: SpaceResult,
     pub availability: AvailabilityResult,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct BuildingResult {
     pub id: i32,
     pub name: String,
@@ -41,7 +41,7 @@ pub struct SpaceResult {
     pub building_id: i32,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct AvailabilityResult {
     pub id: i32,
     pub space_id: i32,
