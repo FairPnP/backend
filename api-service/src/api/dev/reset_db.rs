@@ -33,6 +33,7 @@ pub async fn reset_database(
         ("space_summaries", "2024-02-01_space_summaries"),
         ("user_reviews", "2024-02-01_user_reviews"),
         ("user_summaries", "2024-02-01_user_summaries"),
+        ("user_notif_tokens", "2024-02-24_user_notif_tokens"),
     ]);
 
     // get migration path

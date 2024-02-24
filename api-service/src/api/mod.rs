@@ -20,6 +20,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .configure(users::profiles::config)
             .configure(users::reviews::config)
             .configure(users::summaries::config)
+            .configure(users::notifs::config)
             .configure(reservations::config)
             .configure(availability::config)
             .configure(stripe::config)

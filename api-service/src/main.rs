@@ -9,6 +9,7 @@ use actix_web::{
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::{middleware::jwt_validator, state::JwtValidatorState};
 use db::{establish_connection, redis::get_redis_pool, s3::get_s3_client};
+use expo::get_expo_client;
 use stripe::client::StripeClient;
 use tracing::Level;
 use tracing_actix_web::TracingLogger;
@@ -18,6 +19,7 @@ mod api;
 mod auth;
 mod db;
 mod error;
+mod expo;
 mod health;
 mod redirect;
 mod stripe;
@@ -35,6 +37,7 @@ async fn main() -> std::io::Result<()> {
     jwt_validator_state.get_jwks().await;
     let jwt_validator_state = Arc::new(jwt_validator_state);
     let s3_client = get_s3_client();
+    let expo_client = get_expo_client();
 
     let secret_key = std::env::var("STRIPE_SECRET_KEY").expect("Missing STRIPE_SECRET_KEY in env");
     let base_url = std::env::var("BASE_URL").expect("Missing BASE_URL in env");
@@ -53,6 +56,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(postgres_pool.clone()))
             .app_data(Data::new(redis_pool.clone()))
             .app_data(Data::new(s3_client.clone()))
+            .app_data(Data::new(expo_client.clone()))
             .app_data(Data::new(stripe_client.clone()))
             .configure(health::config)
             .configure(redirect::config)
