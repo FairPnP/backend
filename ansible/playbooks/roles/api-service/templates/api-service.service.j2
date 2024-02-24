@@ -11,6 +11,7 @@ Group=ec2-user
 Environment="BASE_URL=https://{{ api_server_name }}"
 Environment="HOME={{ ansible_env.HOME }}"
 Environment="DATABASE_URL={{ postgres_db_url }}"
+Environment="REDIS_URL={{ redis_url }}"
 Environment="AUTH_ISSUER={{ auth_issuer }}"
 Environment="AUTH_JWKS_URL={{ auth_jwks_url }}"
 Environment="MIGRATIONS_PATH={{ migration_path }}"

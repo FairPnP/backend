@@ -1,5 +1,4 @@
 ---
-
 ENV: "fairpnp-dev"
 
 motd_welcome_message: "Welcome! env: {{ ENV }}"
@@ -10,3 +9,4 @@ api_server_name: "api-dev.fairpnp.com"
 auth_user_pool_id: "us-east-2_rLEHzrY8g"
 auth_issuer: "https://cognito-idp.us-east-2.amazonaws.com/{{ auth_user_pool_id }}"
 auth_jwks_url: "https://cognito-idp.us-east-2.amazonaws.com/{{ auth_user_pool_id }}/.well-known/jwks.json"
+redis_url: "redis://fairpnp-dev-redis.htqdj1.0001.use2.cache.amazonaws.com:6379"
