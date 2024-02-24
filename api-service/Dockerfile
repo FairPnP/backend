@@ -1,6 +1,6 @@
 # ======================================================================
 # Local Stage for development
-FROM rust:1.73 as local
+FROM rust:1.76 as local
 
 WORKDIR /usr/src/api-service
 
@@ -21,7 +21,7 @@ CMD ["cargo", "watch", "-x", "run"]
 
 # ======================================================================
 # Builder Stage to compile the application
-FROM rust:1.73 as builder
+FROM rust:1.76 as builder
 
 WORKDIR /usr/src/api-service
 

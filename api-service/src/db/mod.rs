@@ -10,6 +10,7 @@ pub type DbPool = Pool<Postgres>;
 
 pub mod availability;
 pub mod buildings;
+pub mod redis;
 pub mod reservation_chat_messages;
 pub mod reservations;
 pub mod s3;

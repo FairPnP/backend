@@ -8,7 +8,7 @@ use actix_web::{
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::{middleware::jwt_validator, state::JwtValidatorState};
-use db::{establish_connection, s3::get_s3_client};
+use db::{establish_connection, redis::get_redis_pool, s3::get_s3_client};
 use stripe::client::StripeClient;
 use tracing::Level;
 use tracing_actix_web::TracingLogger;
@@ -27,7 +27,8 @@ async fn main() -> std::io::Result<()> {
     // Initialize logging
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();
 
-    let pool = establish_connection().await;
+    let postgres_pool = establish_connection().await;
+    let redis_pool = get_redis_pool().await;
     let jwt_issuer = std::env::var("AUTH_ISSUER").expect("AUTH_ISSUER must be set");
     let jwks_uri = std::env::var("AUTH_JWKS_URL").expect("AUTH_JWKS_URL must be set");
     let jwt_validator_state = JwtValidatorState::new(jwt_issuer, jwks_uri);
@@ -49,7 +50,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(TracingLogger::default())
             .wrap(Logger::default())
             .wrap(Cors::permissive())
-            .app_data(Data::new(pool.clone()))
+            .app_data(Data::new(postgres_pool.clone()))
+            .app_data(Data::new(redis_pool.clone()))
             .app_data(Data::new(s3_client.clone()))
             .app_data(Data::new(stripe_client.clone()))
             .configure(health::config)
