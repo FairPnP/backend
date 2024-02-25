@@ -8,11 +8,11 @@ use actix_web::{
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::{middleware::jwt_validator, state::JwtValidatorState};
-use services::expo::get_expo_client;
-use services::postgres::establish_connection;
-use services::redis::get_redis_pool;
-use services::s3::get_s3_client;
-use services::stripe::client::StripeClient;
+use google_maps::prelude::*;
+use services::{
+    expo::get_expo_client, postgres::establish_connection, redis::get_redis_pool,
+    s3::get_s3_client, stripe::client::StripeClient,
+};
 use tracing::Level;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber;
@@ -45,6 +45,9 @@ async fn main() -> std::io::Result<()> {
     let refresh_url = format!("{}/redirect/stripe/refresh", base_url);
     let stripe_client = StripeClient::new(secret_key, return_url, refresh_url);
 
+    let google_api_key = std::env::var("GOOGLE_API_KEY").expect("Missing GOOGLE_API_KEY in env");
+    let google_maps_client = GoogleMapsClient::try_new(&google_api_key).unwrap();
+
     let server_bind_address =
         std::env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3000".to_string());
 
@@ -58,6 +61,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(s3_client.clone()))
             .app_data(Data::new(expo_client.clone()))
             .app_data(Data::new(stripe_client.clone()))
+            .app_data(Data::new(google_maps_client.clone()))
             .configure(health::config)
             .configure(redirect::config)
             .service(

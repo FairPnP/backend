@@ -18,6 +18,11 @@ dotenv = "0.15"
 expo_push_notification_client = "0.2.3"
 futures = "0.3"
 futures-util = "0.3"
+google_maps = { version = "3.4", default-features = false, features = [
+  "places",
+  "geocoding",
+  "enable-reqwest",
+] }
 redis = { version = "0.24.0", features = ["tokio-comp"] }
 reqwest = { version = "0.11", features = ["json"] }
 rusoto_core = "0.48"
