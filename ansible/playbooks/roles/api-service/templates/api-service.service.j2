@@ -22,6 +22,7 @@ Environment="AWS_SECRET_ACCESS_KEY={{ aws_secret_access_key }}"
 Environment="STRIPE_SECRET_KEY={{ stripe_secret_key }}"
 Environment="STRIPE_RETURN_URL={{ stripe_return_url }}"
 Environment="STRIPE_REFRESH_URL={{ stripe_refresh_url }}"
+Environment="GOOGLE_API_KEY={{ google_web_api_key }}"
 StandardOutput=append:{{ log_dir }}/api-service.log
 StandardError=append:{{ log_dir }}/api-service.error.log
 
