@@ -1,7 +1,7 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{
+    services::postgres::{
         spaces::{images::SpaceImageDb, SpaceDb},
         DbPool,
     },

@@ -4,16 +4,18 @@ use validator::Validate;
 
 use crate::{
     auth::user::get_user_id,
-    db::{
+    error::ServiceError,
+    services::{
+        postgres::{
+            spaces::images::{entities::SpaceImageStatus, SpaceImageDb},
+            spaces::SpaceDb,
+            DbPool,
+        },
         s3::{
             get_aws_region, get_credentials,
             presigned::{get_public_url, get_user_url},
         },
-        spaces::images::{entities::SpaceImageStatus, SpaceImageDb},
-        spaces::SpaceDb,
-        DbPool,
     },
-    error::ServiceError,
 };
 
 // ======================================================================

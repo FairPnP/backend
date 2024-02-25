@@ -4,11 +4,11 @@ use uuid::Uuid;
 
 use crate::{
     auth::user::get_user_id,
-    db::s3::{
+    error::ServiceError,
+    services::s3::{
         get_aws_region, get_credentials,
         presigned::{get_public_url, get_user_url},
     },
-    error::ServiceError,
 };
 
 use super::S3_BUCKET_AVATAR_PATH;

@@ -1,6 +1,6 @@
 use crate::{
     auth::user::get_user_id,
-    db::{spaces::reviews::SpaceReviewDb, DbPool},
+    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{delete, web, HttpResponse};

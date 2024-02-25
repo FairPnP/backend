@@ -1,12 +1,12 @@
 use crate::{
-    api::validation::validate_req_data, auth::user::get_user_id,
-    db::users::notif_tokens::UserNotifTokenDb, error::ServiceError,
+    api::validation::validate_req_data, auth::user::get_user_id, error::ServiceError,
+    services::postgres::users::notif_tokens::UserNotifTokenDb,
 };
 use actix_web::{get, post, web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::db::DbPool;
+use crate::services::postgres::DbPool;
 
 use super::public::PublicUserNotifToken;
 

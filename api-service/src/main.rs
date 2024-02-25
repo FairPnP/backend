@@ -8,21 +8,21 @@ use actix_web::{
 };
 use actix_web_httpauth::middleware::HttpAuthentication;
 use auth::{middleware::jwt_validator, state::JwtValidatorState};
-use db::{establish_connection, redis::get_redis_pool, s3::get_s3_client};
-use expo::get_expo_client;
-use stripe::client::StripeClient;
+use services::expo::get_expo_client;
+use services::postgres::establish_connection;
+use services::redis::get_redis_pool;
+use services::s3::get_s3_client;
+use services::stripe::client::StripeClient;
 use tracing::Level;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber;
 
 mod api;
 mod auth;
-mod db;
 mod error;
-mod expo;
 mod health;
 mod redirect;
-mod stripe;
+mod services;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

@@ -1,6 +1,6 @@
 use crate::{
     auth::user::get_user_id,
-    db::{reservations::ReservationDb, DbPool},
+    services::postgres::{reservations::ReservationDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{delete, web, HttpResponse};

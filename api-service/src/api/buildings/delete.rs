@@ -1,5 +1,5 @@
 use crate::{
-    db::{buildings::BuildingDb, DbPool},
+    services::postgres::{buildings::BuildingDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{delete, web, HttpResponse};

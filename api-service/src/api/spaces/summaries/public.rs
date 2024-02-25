@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::db::spaces::summaries::entities::SpaceSummary;
+use crate::services::postgres::spaces::summaries::entities::SpaceSummary;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicSpaceSummary {

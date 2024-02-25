@@ -2,7 +2,7 @@ use bigdecimal::BigDecimal;
 use chrono::NaiveDateTime;
 use serde::Serialize;
 
-use crate::db::availability::entities::Availability;
+use crate::services::postgres::availability::entities::Availability;
 
 #[derive(Debug, Serialize)]
 pub struct PublicAvailability {

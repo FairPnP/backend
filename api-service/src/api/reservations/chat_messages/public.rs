@@ -2,7 +2,7 @@ use chrono::NaiveDateTime;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::db::reservation_chat_messages::entities::{ConversationSummary, ReservationChatMessage};
+use crate::services::postgres::reservation_chat_messages::entities::{ConversationSummary, ReservationChatMessage};
 
 #[derive(Debug, Serialize)]
 pub struct PublicChatMessage {

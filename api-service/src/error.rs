@@ -1,9 +1,10 @@
 use std::fmt;
 
-use super::stripe::error::StripeError;
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde::Serialize;
 use validator::ValidationErrors;
+
+use crate::services::stripe::error::StripeError;
 
 #[derive(Serialize)]
 struct ErrorResponse {

@@ -1,5 +1,5 @@
 use crate::{
-    db::{users::profiles::UserProfileDb, DbPool},
+    services::postgres::{users::profiles::UserProfileDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};

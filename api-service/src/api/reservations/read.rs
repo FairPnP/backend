@@ -1,5 +1,5 @@
 use crate::{
-    db::{reservations::ReservationDb, DbPool},
+    services::postgres::{reservations::ReservationDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};

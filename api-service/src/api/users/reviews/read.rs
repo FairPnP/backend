@@ -1,6 +1,6 @@
 use crate::{
     auth::user::get_user_id,
-    db::{users::reviews::UserReviewDb, DbPool},
+    services::postgres::{users::reviews::UserReviewDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpRequest, HttpResponse};

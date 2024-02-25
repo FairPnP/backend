@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::db::spaces::reviews::entities::SpaceReview;
+use crate::services::postgres::spaces::reviews::entities::SpaceReview;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicSpaceReview {

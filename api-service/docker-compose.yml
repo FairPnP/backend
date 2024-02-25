@@ -20,6 +20,7 @@ services:
       STRIPE_RETURN_URL: fairpnp://stripe/return
       STRIPE_REFRESH_URL: fairpnp://stripe/refresh
       REDIS_URL: redis://redis:6379/0
+      GOOGLE_API_KEY: AIzaSyDMP8gXyXheqkMq8KdjZiIuM0YxADie1Z8
     volumes:
       - ./src:/usr/src/api-service/src
       - ./migrations:/usr/src/api-service/migrations
@@ -27,6 +28,7 @@ services:
       - cargo_git:/usr/local/cargo/git
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:13

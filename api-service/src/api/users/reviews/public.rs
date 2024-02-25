@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::db::users::reviews::entities::UserReview;
+use crate::services::postgres::users::reviews::entities::UserReview;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicUserReview {

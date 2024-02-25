@@ -1,4 +1,4 @@
-use crate::db::spaces::entities::Space;
+use crate::services::postgres::spaces::entities::Space;
 use serde::Serialize;
 use uuid::Uuid;
 

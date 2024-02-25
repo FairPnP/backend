@@ -1,7 +1,7 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{reservations::ReservationDb, spaces::SpaceDb, DbPool},
+    services::postgres::{reservations::ReservationDb, spaces::SpaceDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};

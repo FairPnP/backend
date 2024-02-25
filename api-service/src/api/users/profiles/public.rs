@@ -1,4 +1,4 @@
-use crate::db::users::profiles::entities::UserProfile;
+use crate::services::postgres::users::profiles::entities::UserProfile;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

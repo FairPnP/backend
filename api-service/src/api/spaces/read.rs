@@ -1,5 +1,5 @@
 use crate::{
-    db::{
+    services::postgres::{
         spaces::{images::SpaceImageDb, SpaceDb},
         DbPool,
     },

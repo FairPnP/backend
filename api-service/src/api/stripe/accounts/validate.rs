@@ -1,10 +1,12 @@
 use crate::{
     auth::user::get_user_id,
-    db::{stripe_accounts::StripeAccountDb, DbPool},
     error::ServiceError,
-    stripe::{
-        account::{service::Account, types::AccountId},
-        client::StripeClient,
+    services::{
+        postgres::{stripe_accounts::StripeAccountDb, DbPool},
+        stripe::{
+            account::{service::Account, types::AccountId},
+            client::StripeClient,
+        },
     },
 };
 use actix_web::{get, web, HttpRequest, HttpResponse};

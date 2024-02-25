@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::db::users::summaries::entities::UserSummary;
+use crate::services::postgres::users::summaries::entities::UserSummary;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicUserSummary {

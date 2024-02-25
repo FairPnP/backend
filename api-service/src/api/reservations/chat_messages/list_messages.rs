@@ -1,7 +1,7 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{
+    services::postgres::{
         reservation_chat_messages::ReservationChatMessageDb, reservations::ReservationDb, DbPool,
     },
     error::ServiceError,
@@ -49,7 +49,7 @@ pub async fn list_chat_messages(
     // check if user is authorized to view this reservation
     let reservation = ReservationDb::get(&pool, reservation_id.clone()).await?;
     if reservation.user_id != user_id {
-        let space = crate::db::spaces::SpaceDb::get(&pool, reservation.space_id).await?;
+        let space = crate::services::postgres::spaces::SpaceDb::get(&pool, reservation.space_id).await?;
         if space.user_id != user_id {
             return Err(ServiceError::Unauthorized);
         }

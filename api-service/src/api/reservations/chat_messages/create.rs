@@ -1,12 +1,14 @@
 use crate::{
     auth::user::get_user_id,
-    db::{
-        reservation_chat_messages::ReservationChatMessageDb,
-        users::{notif_tokens::UserNotifTokenDb, profiles::UserProfileDb},
-        DbPool,
-    },
     error::ServiceError,
-    expo::send_push_notification,
+    services::{
+        expo::send_push_notification,
+        postgres::{
+            reservation_chat_messages::ReservationChatMessageDb,
+            users::{notif_tokens::UserNotifTokenDb, profiles::UserProfileDb},
+            DbPool,
+        },
+    },
 };
 use actix_web::{post, web, HttpResponse};
 use expo_push_notification_client::Expo;
@@ -42,9 +44,13 @@ pub async fn create_chat_message(
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
 
-    let chat_message =
-        ReservationChatMessageDb::insert(&pool, data.reservation_id, user_id, data.message.clone())
-            .await?;
+    let chat_message = ReservationChatMessageDb::insert(
+        &pool,
+        data.reservation_id,
+        user_id,
+        data.message.clone(),
+    )
+    .await?;
 
     let tokens = UserNotifTokenDb::list(&pool, user_id).await?;
     // get valid expo tokens, and dedupe

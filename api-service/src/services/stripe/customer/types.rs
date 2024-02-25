@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::stripe::account::types::AccountId;
+use crate::services::stripe::account::types::AccountId;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CustomerId(String);

@@ -1,6 +1,6 @@
 use crate::{
     api::validation::validate_req_data,
-    db::{spaces::reviews::SpaceReviewDb, DbPool},
+    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};

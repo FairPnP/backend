@@ -1,8 +1,8 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{users::reviews::UserReviewDb, DbPool},
     error::ServiceError,
+    services::postgres::{users::reviews::UserReviewDb, DbPool},
 };
 use actix_web::{put, web, HttpResponse};
 use serde::{Deserialize, Serialize};

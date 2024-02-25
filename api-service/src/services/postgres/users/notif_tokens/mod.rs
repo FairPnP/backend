@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use uuid::Uuid;
 
-use crate::db::DbPool;
+use crate::services::postgres::DbPool;
 
 pub mod entities;
 

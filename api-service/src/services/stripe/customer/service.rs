@@ -2,7 +2,7 @@
 use reqwest::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::stripe::account::types::AccountId;
+use crate::services::stripe::account::types::AccountId;
 
 use super::super::client::StripeClient;
 use super::super::error::StripeError;

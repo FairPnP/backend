@@ -1,8 +1,11 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{s3::presigned::is_valid_url, users::profiles::UserProfileDb, DbPool},
     error::ServiceError,
+    services::{
+        postgres::{users::profiles::UserProfileDb, DbPool},
+        s3::presigned::is_valid_url,
+    },
 };
 use actix_web::{put, web, HttpResponse};
 use serde::{Deserialize, Serialize};

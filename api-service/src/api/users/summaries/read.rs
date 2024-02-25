@@ -1,6 +1,6 @@
 use crate::{
-    db::{users::summaries::UserSummaryDb, DbPool},
     error::ServiceError,
+    services::postgres::{users::summaries::UserSummaryDb, DbPool},
 };
 use actix_web::{get, web, HttpResponse};
 use serde::Serialize;

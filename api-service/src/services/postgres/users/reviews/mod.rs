@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::db::DbPool;
+use crate::services::postgres::DbPool;
 
 use self::entities::UserReview;
 use super::summaries::entities::UserSummary;

@@ -1,8 +1,8 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    db::{availability::AvailabilityDb, DbPool},
     error::ServiceError,
+    services::postgres::{availability::AvailabilityDb, DbPool},
 };
 use actix_web::{post, web, HttpResponse};
 use bigdecimal::BigDecimal;

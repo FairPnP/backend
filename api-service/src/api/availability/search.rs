@@ -1,6 +1,6 @@
 use crate::{
     api::validation::validate_req_data,
-    db::{
+    services::postgres::{
         availability::{
             entities::{BuildingResult, SpaceResult},
             AvailabilityDb,

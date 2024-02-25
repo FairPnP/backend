@@ -1,6 +1,6 @@
 use crate::{
     auth::user::get_user_id,
-    db::{availability::AvailabilityDb, DbPool},
+    services::postgres::{availability::AvailabilityDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{delete, web, HttpResponse};

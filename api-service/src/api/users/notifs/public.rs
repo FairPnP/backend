@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::db::users::notif_tokens::entities::UserNotifToken;
+use crate::services::postgres::users::notif_tokens::entities::UserNotifToken;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicUserNotifToken {

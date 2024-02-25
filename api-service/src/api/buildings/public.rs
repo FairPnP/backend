@@ -1,7 +1,7 @@
 use serde::Serialize;
 use sqlx::types::BigDecimal;
 
-use crate::db::buildings::entities::Building;
+use crate::services::postgres::buildings::entities::Building;
 
 #[derive(Debug, Serialize)]
 pub struct PublicBuilding {

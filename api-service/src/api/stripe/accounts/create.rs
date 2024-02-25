@@ -1,6 +1,6 @@
 use crate::{
     auth::user::get_user_id,
-    db::{stripe_accounts::StripeAccountDb, DbPool},
+    services::postgres::{stripe_accounts::StripeAccountDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{post, web, HttpRequest, HttpResponse};

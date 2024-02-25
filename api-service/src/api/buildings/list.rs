@@ -1,6 +1,6 @@
 use crate::{
     api::validation::{list_param::param_list_i32, validate_req_data},
-    db::{buildings::BuildingDb, DbPool},
+    services::postgres::{buildings::BuildingDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};

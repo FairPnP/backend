@@ -1,4 +1,4 @@
-use crate::{db::DbPool, error::ServiceError};
+use crate::{services::postgres::DbPool, error::ServiceError};
 use actix_web::{post, web, HttpResponse};
 use std::{collections::HashMap, fs};
 

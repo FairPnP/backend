@@ -1,5 +1,5 @@
 use crate::{
-    db::{spaces::images::SpaceImageDb, DbPool},
+    services::postgres::{spaces::images::SpaceImageDb, DbPool},
     error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};

@@ -1,7 +1,7 @@
 use chrono::NaiveDateTime;
 use serde::Serialize;
 
-use crate::db::reservations::entities::Reservation;
+use crate::services::postgres::reservations::entities::Reservation;
 
 #[derive(Debug, Serialize)]
 pub struct PublicReservation {
