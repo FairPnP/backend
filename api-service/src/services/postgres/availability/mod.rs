@@ -3,6 +3,8 @@ use chrono::NaiveDateTime;
 use sqlx::Row;
 use uuid::Uuid;
 
+use crate::utils::hashids::encode_id;
+
 use self::entities::{Availability, AvailabilityResult, BuildingResult, SearchResult, SpaceResult};
 
 use super::DbPool;
@@ -165,17 +167,18 @@ impl AvailabilityDb {
 
         let mut results = Vec::new();
 
+        // TODO: refactor search results, I don't like encoding at db level
         for row in rows {
             let availability = AvailabilityResult {
-                id: row.try_get("a_id")?,
-                space_id: row.try_get("a_space_id")?,
+                id: encode_id(row.try_get("a_id")?),
+                space_id: encode_id(row.try_get("a_space_id")?),
                 start_date: row.try_get("a_start_date")?,
                 end_date: row.try_get("a_end_date")?,
                 hourly_rate: row.try_get("a_hourly_rate")?,
             };
 
             let building = BuildingResult {
-                id: row.try_get("b_id")?,
+                id: encode_id(row.try_get("b_id")?),
                 name: row.try_get("b_name")?,
                 place_id: row.try_get("b_place_id")?,
                 latitude: row.try_get("b_latitude")?,
@@ -183,8 +186,8 @@ impl AvailabilityDb {
             };
 
             let space = SpaceResult {
-                id: row.try_get("s_id")?,
-                building_id: row.try_get("s_building_id")?,
+                id: encode_id(row.try_get("s_id")?),
+                building_id: encode_id(row.try_get("s_building_id")?),
             };
 
             results.push(SearchResult {

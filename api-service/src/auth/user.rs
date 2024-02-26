@@ -20,7 +20,7 @@ pub struct User {
 
 pub fn get_user_id(req: &HttpRequest) -> Result<Uuid, ServiceError> {
     match req.extensions().get::<User>() {
-        Some(user) => Ok(user.id.clone()),
+        Some(user) => Ok(user.id),
         None => Err(ServiceError::Unauthorized),
     }
 }

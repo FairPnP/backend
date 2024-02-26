@@ -21,11 +21,10 @@ impl StripeCustomerDb {
         let stripe_customer = sqlx::query_as::<_, StripeCustomer>(
             "INSERT INTO stripe_customers (user_id, customer_id) VALUES ($1, $2) RETURNING *",
         )
-        .bind(&user_id)
+        .bind(user_id)
         .bind(customer_id)
         .fetch_one(pool)
-        .await?
-        .into();
+        .await?;
 
         Ok(stripe_customer)
     }

@@ -1,6 +1,7 @@
 use crate::{
-    services::postgres::{buildings::BuildingDb, DbPool},
     error::ServiceError,
+    services::postgres::{buildings::BuildingDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::Serialize;
@@ -21,9 +22,10 @@ pub struct ReadBuildingResponse {
 #[get("/{id}")]
 pub async fn read_building(
     pool: web::Data<DbPool>,
-    building_id: web::Path<i32>,
+    building_id: web::Path<String>,
 ) -> Result<HttpResponse, ServiceError> {
-    let building = BuildingDb::get(&pool, building_id.into_inner()).await?;
+    let building_id = decode_id(&building_id.into_inner())?;
+    let building = BuildingDb::get(&pool, building_id).await?;
     Ok(HttpResponse::Ok().json(ReadBuildingResponse {
         building: building.into(),
     }))

@@ -185,15 +185,15 @@ impl UserReviewDb {
                 new_review
             }
             None => {
-                let new_review = sqlx::query_as::<_, UserReview>(
+                
+
+                sqlx::query_as::<_, UserReview>(
             "UPDATE user_reviews SET message = COALESCE($1, message) WHERE from_user_id = $2 AND to_user_id = $3 RETURNING *")
             .bind(message)
             .bind(from_user_id)
             .bind(to_user_id)
             .fetch_one(&mut *tx)
-            .await?;
-
-                new_review
+            .await?
             }
         };
 

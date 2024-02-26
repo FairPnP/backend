@@ -24,6 +24,6 @@ pub async fn jwt_validator(
 
             Ok(req)
         }
-        _ => Err((Error::from(error::ErrorUnauthorized("Invalid token")), req)),
+        _ => Err((error::ErrorUnauthorized("Invalid token"), req)),
     };
 }

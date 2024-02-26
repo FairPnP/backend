@@ -1,8 +1,9 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    services::postgres::{availability::AvailabilityDb, DbPool},
     error::ServiceError,
+    services::postgres::{availability::AvailabilityDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{put, web, HttpResponse};
 use bigdecimal::BigDecimal;
@@ -34,12 +35,12 @@ pub struct UpdateAvailabilityResponse {
 pub async fn update_availability(
     pool: web::Data<DbPool>,
     req: actix_web::HttpRequest,
-    availability_id: web::Path<i32>,
+    availability_id: web::Path<String>,
     data: web::Json<UpdateAvailabilityRequest>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
     let data = validate_req_data(data.into_inner())?;
-    let availability_id = availability_id.into_inner();
+    let availability_id = decode_id(&availability_id.into_inner())?;
 
     let updated_availability = AvailabilityDb::update(
         &pool,

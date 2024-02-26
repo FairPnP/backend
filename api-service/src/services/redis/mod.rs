@@ -12,10 +12,10 @@ pub async fn get_redis_pool() -> RedisPool {
         RedisConnectionManager::new(redis_url).expect("Failed to create Redis connection manager");
 
     // Create the pool
-    let pool = Pool::builder()
+    
+
+    Pool::builder()
         .build(manager)
         .await
-        .expect("Failed to create Redis pool");
-
-    pool
+        .expect("Failed to create Redis pool")
 }

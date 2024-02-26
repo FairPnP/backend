@@ -22,7 +22,7 @@ where
             E: de::Error,
         {
             let mut ids = Vec::new();
-            for id in v.split(",") {
+            for id in v.split(',') {
                 // let id = i32::deserialize(id.into_deserializer())?;
                 let id = id.parse::<i32>().map_err(de::Error::custom)?;
                 ids.push(id);

@@ -19,6 +19,7 @@ pub struct Availability {
     pub last_modified: NaiveDateTime,
 }
 
+// TODO: Clean up these result types, refactor searching in general
 #[derive(Debug, Serialize)]
 pub struct SearchResult {
     pub building: BuildingResult,
@@ -28,7 +29,7 @@ pub struct SearchResult {
 
 #[derive(Debug, Serialize)]
 pub struct BuildingResult {
-    pub id: i32,
+    pub id: String,
     pub name: String,
     pub place_id: String,
     pub latitude: BigDecimal,
@@ -37,14 +38,14 @@ pub struct BuildingResult {
 
 #[derive(Debug, Serialize)]
 pub struct SpaceResult {
-    pub id: i32,
-    pub building_id: i32,
+    pub id: String,
+    pub building_id: String,
 }
 
 #[derive(Debug, Serialize)]
 pub struct AvailabilityResult {
-    pub id: i32,
-    pub space_id: i32,
+    pub id: String,
+    pub space_id: String,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
     pub hourly_rate: BigDecimal,

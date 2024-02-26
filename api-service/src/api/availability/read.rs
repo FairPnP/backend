@@ -1,6 +1,7 @@
 use crate::{
-    services::postgres::{availability::AvailabilityDb, DbPool},
     error::ServiceError,
+    services::postgres::{availability::AvailabilityDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::Serialize;
@@ -21,9 +22,10 @@ pub struct ReadAvailabilityResponse {
 #[get("/{id}")]
 pub async fn read_availability(
     pool: web::Data<DbPool>,
-    availability_id: web::Path<i32>,
+    availability_id: web::Path<String>,
 ) -> Result<HttpResponse, ServiceError> {
-    let availability = AvailabilityDb::get(&pool, availability_id.into_inner()).await?;
+    let availability_id = decode_id(&availability_id.into_inner())?;
+    let availability = AvailabilityDb::get(&pool, availability_id).await?;
     Ok(HttpResponse::Ok().json(ReadAvailabilityResponse {
         availability: availability.into(),
     }))

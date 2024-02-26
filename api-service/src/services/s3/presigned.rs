@@ -26,12 +26,12 @@ pub fn get_user_url(
         expires_in: std::time::Duration::from_secs(60),
     };
     let req = PutObjectRequest {
-        bucket: bucket.into(),
+        bucket,
         key: object_key.clone(),
         ..Default::default()
     };
 
-    let url = req.get_presigned_url(&region, &credentials, &options);
+    let url = req.get_presigned_url(region, credentials, &options);
     PreSignedUrl { object_key, url }
 }
 

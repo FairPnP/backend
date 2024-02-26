@@ -4,6 +4,7 @@ use crate::{
         spaces::{images::SpaceImageDb, SpaceDb},
         DbPool,
     },
+    utils::hashids::decode_id,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::Serialize;
@@ -24,10 +25,10 @@ pub struct ReadSpaceResponse {
 #[get("/{id}")]
 pub async fn read_space(
     pool: web::Data<DbPool>,
-    space_id: web::Path<i32>,
+    space_id: web::Path<String>,
 ) -> Result<HttpResponse, ServiceError> {
-    let space = SpaceDb::get(&pool, space_id.into_inner()).await?;
-    let space_id = space.id;
+    let space_id = decode_id(&space_id.into_inner())?;
+    let space = SpaceDb::get(&pool, space_id).await?;
     let mut public_space = PublicSpace::from(space);
 
     // get the space images

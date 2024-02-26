@@ -41,7 +41,7 @@ impl JwtValidatorState {
 
 async fn fetch_jwks(uri: &str) -> JWKS {
     let res = reqwest::get(uri).await.expect("failed to fetch jwks");
-    let val = res.json::<JWKS>().await.expect("failed to parse jwks");
+    
 
-    val
+    res.json::<JWKS>().await.expect("failed to parse jwks")
 }

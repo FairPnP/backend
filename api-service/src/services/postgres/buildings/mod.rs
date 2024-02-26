@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use bigdecimal::BigDecimal;
 
 use self::entities::Building;
@@ -12,6 +13,7 @@ impl BuildingDb {
     // ======================================================================
     // Create
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn insert(
         pool: &DbPool,
         name: String,
@@ -38,7 +40,7 @@ impl BuildingDb {
       .bind(&postal_code)
       .bind(&country)
       .fetch_one(pool)
-      .await?.into();
+      .await?;
 
         Ok(building)
     }

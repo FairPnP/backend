@@ -15,6 +15,7 @@ impl SpaceDb {
     // ======================================================================
     // Create
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn insert(
         pool: &DbPool,
         user_id: Uuid,
@@ -40,8 +41,7 @@ impl SpaceDb {
         .bind(access_restrictions)
         .bind(parking_instructions)
         .fetch_one(pool)
-        .await?
-        .into();
+        .await?;
 
         Ok(space)
     }
@@ -93,6 +93,7 @@ impl SpaceDb {
     // ======================================================================
     // Update
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn update(
         pool: &DbPool,
         space_id: i32,

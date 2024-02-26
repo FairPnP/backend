@@ -7,8 +7,10 @@ use crate::{
     error::ServiceError,
     services::{
         postgres::{
-            spaces::images::{entities::SpaceImageStatus, SpaceImageDb},
-            spaces::SpaceDb,
+            spaces::{
+                images::{entities::SpaceImageStatus, SpaceImageDb},
+                SpaceDb,
+            },
             DbPool,
         },
         s3::{
@@ -16,6 +18,7 @@ use crate::{
             presigned::{get_public_url, get_user_url},
         },
     },
+    utils::hashids::{decode_id, encode_id},
 };
 
 // ======================================================================
@@ -23,15 +26,15 @@ use crate::{
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateSpaceImageRequest {
-    #[validate(range(min = 1))]
-    pub space_id: i32,
+    #[validate(length(min = 10))]
+    pub space_id: String,
     #[validate(range(min = 1, max = 5))]
     pub num_images: i32,
 }
 
 #[derive(Debug, Serialize)]
 pub struct PendingSpaceImage {
-    pub space_image_id: i32,
+    pub space_image_id: String,
     pub slot_id: i32,
     pub presigned_url: String,
 }
@@ -48,7 +51,7 @@ pub async fn create_space_image(
     data: web::Json<CreateSpaceImageRequest>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
-    let space_id = data.space_id;
+    let space_id = decode_id(&data.space_id)?;
     let num_new_images = data.num_images;
 
     let space = SpaceDb::get(&pool, space_id).await?;
@@ -85,11 +88,7 @@ pub async fn create_space_image(
     let mut current_url = 0;
     for i in 0..num_images {
         let slot_id = i;
-        if space_images
-            .iter()
-            .find(|&x| x.slot_id == slot_id)
-            .is_none()
-        {
+        if !space_images.iter().any(|x| x.slot_id == slot_id) {
             let presigned_url = &presigned_urls[current_url];
             let public_url = get_public_url(&region, &presigned_url.object_key);
 
@@ -103,7 +102,7 @@ pub async fn create_space_image(
             .await?;
 
             pending_images.push(PendingSpaceImage {
-                space_image_id: space_image.id,
+                space_image_id: encode_id(space_image.id),
                 slot_id,
                 presigned_url: presigned_url.url.clone(),
             });

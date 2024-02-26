@@ -183,15 +183,15 @@ impl SpaceReviewDb {
                 new_review
             }
             None => {
-                let new_review = sqlx::query_as::<_, SpaceReview>(
+                
+
+                sqlx::query_as::<_, SpaceReview>(
             "UPDATE space_reviews SET message = COALESCE($1, message) WHERE user_id = $2 AND space_id = $3 RETURNING *")
             .bind(message)
             .bind(user_id)
             .bind(space_id)
             .fetch_one(&mut *tx)
-            .await?;
-
-                new_review
+            .await?
             }
         };
 

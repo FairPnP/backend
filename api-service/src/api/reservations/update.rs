@@ -1,8 +1,9 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    services::postgres::{reservations::ReservationDb, DbPool},
     error::ServiceError,
+    services::postgres::{reservations::ReservationDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{put, web, HttpResponse};
 use chrono::NaiveDateTime;
@@ -31,13 +32,13 @@ pub struct UpdateReservationResponse {
 #[put("/{id}")]
 pub async fn update_reservation(
     pool: web::Data<DbPool>,
-    reservation_id: web::Path<i32>,
+    reservation_id: web::Path<String>,
     req: actix_web::HttpRequest,
     data: web::Json<UpdateReservationRequest>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
     let data = validate_req_data(data.into_inner())?;
-    let reservation_id = reservation_id.into_inner();
+    let reservation_id = decode_id(&reservation_id.into_inner())?;
 
     let updated_reservation = ReservationDb::update(
         &pool,

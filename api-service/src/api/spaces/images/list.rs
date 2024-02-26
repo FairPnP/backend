@@ -1,7 +1,8 @@
 use crate::{
     api::validation::validate_req_data,
-    services::postgres::{spaces::images::SpaceImageDb, DbPool},
     error::ServiceError,
+    services::postgres::{spaces::images::SpaceImageDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -14,7 +15,8 @@ use super::public::PublicSpaceImage;
 
 #[derive(Deserialize, Validate)]
 pub struct PaginationParams {
-    space_id: i32,
+    #[validate(length(min = 10))]
+    space_id: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -31,8 +33,9 @@ pub async fn list_space_images(
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse, ServiceError> {
     let query = validate_req_data(query.into_inner())?;
+    let space_id = decode_id(&query.space_id)?;
 
-    let space_images = SpaceImageDb::list_for_space(&pool, query.space_id).await?;
+    let space_images = SpaceImageDb::list_for_space(&pool, space_id).await?;
 
     Ok(HttpResponse::Ok().json(ListSpaceImagesResponse {
         space_images: space_images

@@ -52,7 +52,7 @@ pub async fn update_user_profile(
     // check if user profile exists
     let user_profile = UserProfileDb::get(&pool, user_id)
         .await
-        .map_err(|err| ServiceError::from(err));
+        .map_err(ServiceError::from);
 
     // create or update user profile
     let updated_user_profile = match user_profile {

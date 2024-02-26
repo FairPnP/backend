@@ -11,6 +11,7 @@ use crate::{
             DbPool,
         },
     },
+    utils::hashids::{decode_id, encode_id},
 };
 use actix_web::{post, web, HttpResponse};
 use expo_push_notification_client::Expo;
@@ -24,8 +25,8 @@ use super::public::PublicChatMessage;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateChatMessageRequest {
-    #[validate(range(min = 1))]
-    pub reservation_id: i32,
+    #[validate(length(min = 10))]
+    pub reservation_id: String,
     pub message: String,
 }
 
@@ -45,8 +46,9 @@ pub async fn create_chat_message(
     data: web::Json<CreateChatMessageRequest>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
+    let reservation_id = decode_id(&data.reservation_id)?;
 
-    let reservation = ReservationDb::get(&pool, data.reservation_id).await?;
+    let reservation = ReservationDb::get(&pool, reservation_id).await?;
     let space = SpaceDb::get(&pool, reservation.space_id).await?;
     // check if user is part of reservation or space
     if !(reservation.user_id == user_id || space.user_id == user_id) {
@@ -54,7 +56,7 @@ pub async fn create_chat_message(
     }
 
     let chat_message =
-        ReservationChatMessageDb::insert(&pool, data.reservation_id, user_id, data.message.clone())
+        ReservationChatMessageDb::insert(&pool, reservation_id, user_id, data.message.clone())
             .await?;
 
     let other_user_id = if reservation.user_id == user_id {
@@ -79,7 +81,7 @@ pub async fn create_chat_message(
         let message_data = MessageNotifData {
             screen_name: "ReservationChat".to_string(),
             screen_params: ChatScreenParams {
-                reservation_id: data.reservation_id,
+                reservation_id: encode_id(reservation_id),
             },
         };
 
@@ -105,7 +107,7 @@ pub async fn create_chat_message(
 
 #[derive(Serialize)]
 struct ChatScreenParams {
-    reservation_id: i32,
+    reservation_id: String,
 }
 
 #[derive(Serialize)]

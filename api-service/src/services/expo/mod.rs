@@ -9,9 +9,9 @@ pub enum NotifError {
 }
 
 pub fn get_expo_client() -> Expo {
-    let expo = Expo::new(ExpoClientOptions::default());
+    
 
-    expo
+    Expo::new(ExpoClientOptions::default())
 }
 
 pub async fn send_push_notification<T>(
@@ -28,17 +28,17 @@ where
         .title(title)
         .body(body)
         .data(data)
-        .map_err(|e| NotifError::ValidationError(e))?
+        .map_err(NotifError::ValidationError)?
         .sound("default")
         .build()
-        .map_err(|e| NotifError::ValidationError(e))?;
+        .map_err(NotifError::ValidationError)?;
 
     println!("Sending push notification: {:?}", message);
 
     let push_tickets = client
         .send_push_notifications(message)
         .await
-        .map_err(|e| NotifError::CustomError(e))?;
+        .map_err(NotifError::CustomError)?;
 
     Ok(push_tickets)
 }

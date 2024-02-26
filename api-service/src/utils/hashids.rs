@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use harsh::Harsh;
 use lazy_static::lazy_static;
 
@@ -14,6 +16,10 @@ lazy_static! {
 
 pub fn encode_id(id: i32) -> String {
     HASHIDS.encode(&[id as u64])
+}
+
+pub fn encode_id_option(id: Option<i32>) -> Option<String> {
+    id.map(encode_id)
 }
 
 pub fn decode_id(hash: &str) -> Result<i32, harsh::Error> {

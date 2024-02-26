@@ -3,7 +3,7 @@ use crate::{
     auth::user::get_user_id,
     error::ServiceError,
     services::postgres::{availability::AvailabilityDb, DbPool},
-    utils::hashids::decode_id_option,
+    utils::hashids::{decode_id_option, encode_id},
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -16,8 +16,8 @@ use super::public::PublicAvailability;
 
 #[derive(Deserialize, Validate)]
 pub struct PaginationParams {
-    #[validate(range(min = 1))]
-    offset_id: Option<i32>,
+    #[validate(length(min = 10))]
+    offset_id: Option<String>,
     #[validate(range(min = 1))]
     limit: Option<i32>,
     user: Option<bool>,
@@ -28,7 +28,7 @@ pub struct PaginationParams {
 #[derive(Debug, Serialize)]
 pub struct ListAvailabilityResponse {
     pub availability: Vec<PublicAvailability>,
-    pub next_offset_id: Option<i32>,
+    pub next_offset_id: Option<String>,
     pub limit: i32,
 }
 
@@ -58,9 +58,10 @@ pub async fn list_availability(
 
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
-    let availability = AvailabilityDb::list(&pool, query.offset_id, limit, user, space_id).await?;
+    let offset_id = decode_id_option(&query.offset_id)?;
+    let availability = AvailabilityDb::list(&pool, offset_id, limit, user, space_id).await?;
     let next_offset_id = if availability.len() as i32 == limit {
-        availability.last().map(|b| b.id)
+        availability.last().map(|b| encode_id(b.id))
     } else {
         None
     };

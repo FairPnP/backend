@@ -64,7 +64,7 @@ impl From<StripeError> for ServiceError {
 }
 
 impl From<harsh::Error> for ServiceError {
-    fn from(error: harsh::Error) -> Self {
+    fn from(_error: harsh::Error) -> Self {
         ServiceError::NotFound
     }
 }

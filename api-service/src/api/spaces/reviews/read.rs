@@ -1,7 +1,8 @@
 use crate::{
     auth::user::get_user_id,
-    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
     error::ServiceError,
+    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use serde::Serialize;
@@ -23,11 +24,12 @@ pub struct ReadSpaceReviewResponse {
 pub async fn read_space_review(
     req: HttpRequest,
     pool: web::Data<DbPool>,
-    space_review_id: web::Path<i32>,
+    space_review_id: web::Path<String>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
+    let space_review_id = decode_id(&space_review_id.into_inner())?;
 
-    let space_review = SpaceReviewDb::get(&pool, user_id, *space_review_id).await?;
+    let space_review = SpaceReviewDb::get(&pool, user_id, space_review_id).await?;
     Ok(HttpResponse::Ok().json(ReadSpaceReviewResponse {
         space_review: space_review.into(),
     }))

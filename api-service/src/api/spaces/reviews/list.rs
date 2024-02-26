@@ -1,7 +1,8 @@
 use crate::{
     api::validation::validate_req_data,
-    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
     error::ServiceError,
+    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
+    utils::hashids::{decode_id, decode_id_option},
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -14,9 +15,10 @@ use super::public::PublicSpaceReview;
 
 #[derive(Deserialize, Validate)]
 pub struct PaginationParams {
-    space_id: i32,
-    #[validate(range(min = 1))]
-    offset_id: Option<i32>,
+    #[validate(length(min = 10))]
+    space_id: String,
+    #[validate(length(min = 10))]
+    offset_id: Option<String>,
     #[validate(range(min = 1))]
     limit: Option<i32>,
 }
@@ -35,10 +37,12 @@ pub async fn list_space_reviews(
     query: web::Query<PaginationParams>,
 ) -> Result<HttpResponse, ServiceError> {
     let query = validate_req_data(query.into_inner())?;
+    let space_id = decode_id(&query.space_id)?;
 
     let limit = query.limit.unwrap_or(10);
+    let offset_id = decode_id_option(&query.offset_id)?;
 
-    let space_reviews = SpaceReviewDb::list(&pool, query.space_id, limit, query.offset_id).await?;
+    let space_reviews = SpaceReviewDb::list(&pool, space_id, limit, offset_id).await?;
 
     Ok(HttpResponse::Ok().json(ListSpaceReviewsResponse {
         space_reviews: space_reviews

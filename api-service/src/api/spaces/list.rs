@@ -6,6 +6,7 @@ use crate::{
         spaces::{images::SpaceImageDb, SpaceDb},
         DbPool,
     },
+    utils::hashids::{decode_id_option, encode_id},
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -18,8 +19,8 @@ use super::public::PublicSpace;
 
 #[derive(Deserialize, Validate)]
 pub struct PaginationParams {
-    #[validate(range(min = 1))]
-    offset_id: Option<i32>,
+    #[validate(length(min = 10))]
+    offset_id: Option<String>,
     #[validate(range(min = 1))]
     limit: Option<i32>,
     user: Option<bool>,
@@ -30,7 +31,7 @@ pub struct PaginationParams {
 #[derive(Debug, Serialize)]
 pub struct ListSpacesResponse {
     pub spaces: Vec<PublicSpace>,
-    pub next_offset_id: Option<i32>,
+    pub next_offset_id: Option<String>,
     pub limit: i32,
 }
 
@@ -50,25 +51,19 @@ pub async fn list_spaces(
         // allow override
         Some(val) => match val {
             // if true, use user_id
-            true => Some(user_id.clone()),
+            true => Some(user_id),
             false => None,
         },
         // default to user_id
-        None => Some(user_id.clone()),
+        None => Some(user_id),
     };
 
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
-    let spaces = SpaceDb::list(
-        &pool,
-        query.offset_id,
-        limit,
-        user,
-        query.building_id.to_owned(),
-    )
-    .await?;
+    let offset_id = decode_id_option(&query.offset_id)?;
+    let spaces = SpaceDb::list(&pool, offset_id, limit, user, query.building_id.to_owned()).await?;
     let next_offset_id = if spaces.len() as i32 == limit {
-        spaces.last().map(|b| b.id)
+        spaces.last().map(|b| encode_id(b.id))
     } else {
         None
     };

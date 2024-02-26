@@ -3,6 +3,7 @@ use crate::{
     auth::user::get_user_id,
     error::ServiceError,
     services::postgres::{availability::AvailabilityDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{post, web, HttpResponse};
 use bigdecimal::BigDecimal;
@@ -17,7 +18,7 @@ use super::public::PublicAvailability;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateAvailabilityRequest {
-    pub space_id: i32,
+    pub space_id: String,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
     pub hourly_rate: BigDecimal,
@@ -39,11 +40,12 @@ pub async fn create_availability(
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
     let data = validate_req_data(data.into_inner())?;
+    let space_id = decode_id(&data.space_id)?;
 
     let availability = AvailabilityDb::insert(
         &pool,
         user_id,
-        data.space_id,
+        space_id,
         data.start_date,
         data.end_date,
         data.hourly_rate,

@@ -48,9 +48,9 @@ pub async fn create_payment(
         Ok(customer) => customer,
         Err(sqlx::Error::RowNotFound) => {
             let s_customer = Customer::create_customer(&stripe_client).await?;
-            let customer = StripeCustomerDb::insert(&pool, user_id, s_customer.id.as_str()).await?;
+            
 
-            customer
+            StripeCustomerDb::insert(&pool, user_id, s_customer.id.as_str()).await?
         }
         Err(err) => return Err(err.into()),
     };

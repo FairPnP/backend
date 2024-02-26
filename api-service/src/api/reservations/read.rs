@@ -1,6 +1,7 @@
 use crate::{
-    services::postgres::{reservations::ReservationDb, DbPool},
     error::ServiceError,
+    services::postgres::{reservations::ReservationDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::Serialize;
@@ -21,9 +22,11 @@ pub struct ReadReservationResponse {
 #[get("/{id}")]
 pub async fn read_reservation(
     pool: web::Data<DbPool>,
-    reservation_id: web::Path<i32>,
+    reservation_id: web::Path<String>,
 ) -> Result<HttpResponse, ServiceError> {
-    let reservation = ReservationDb::get(&pool, reservation_id.into_inner()).await?;
+    let reservation_id = decode_id(&reservation_id.into_inner())?;
+    let reservation = ReservationDb::get(&pool, reservation_id).await?;
+
     Ok(HttpResponse::Ok().json(ReadReservationResponse {
         reservation: reservation.into(),
     }))

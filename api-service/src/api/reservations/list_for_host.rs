@@ -2,8 +2,9 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    services::postgres::{reservations::ReservationDb, DbPool},
     error::ServiceError,
+    services::postgres::{reservations::ReservationDb, DbPool},
+    utils::hashids::{decode_id_option, encode_id},
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -16,8 +17,8 @@ use super::public::PublicReservation;
 
 #[derive(Deserialize, Validate)]
 pub struct HostPaginationParams {
-    #[validate(range(min = 1))]
-    offset_id: Option<i32>,
+    #[validate(length(min = 10))]
+    offset_id: Option<String>,
     #[validate(range(min = 1))]
     limit: Option<i32>,
 }
@@ -25,7 +26,7 @@ pub struct HostPaginationParams {
 #[derive(Debug, Serialize)]
 pub struct ListHostReservationsResponse {
     pub reservations: Vec<PublicReservation>,
-    pub next_offset_id: Option<i32>,
+    pub next_offset_id: Option<String>,
     pub limit: i32,
 }
 
@@ -43,9 +44,10 @@ pub async fn list_host_reservations(
 
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
-    let reservations = ReservationDb::list_for_host(&pool, user_id, query.offset_id, limit).await?;
+    let offset_id = decode_id_option(&query.offset_id)?;
+    let reservations = ReservationDb::list_for_host(&pool, user_id, offset_id, limit).await?;
     let next_offset_id = if reservations.len() as i32 == limit {
-        reservations.last().map(|b| b.id)
+        reservations.last().map(|b| encode_id(b.id))
     } else {
         None
     };

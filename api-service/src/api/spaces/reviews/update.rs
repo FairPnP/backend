@@ -1,8 +1,9 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
     error::ServiceError,
+    services::postgres::{spaces::reviews::SpaceReviewDb, DbPool},
+    utils::hashids::decode_id,
 };
 use actix_web::{put, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -32,16 +33,17 @@ pub struct UpdateSpaceReviewResponse {
 #[put("/{id}")]
 pub async fn update_space_review(
     pool: web::Data<DbPool>,
-    space_id: web::Path<i32>,
+    space_id: web::Path<String>,
     req: actix_web::HttpRequest,
     data: web::Json<UpdateSpaceReviewRequest>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
     let data = validate_req_data(data.into_inner())?;
-    let space_id = space_id.into_inner();
+    let space_id = decode_id(&space_id.into_inner())?;
 
     let updated_space_review =
         SpaceReviewDb::update(&pool, user_id, space_id, data.message, data.stars).await?;
+
     Ok(HttpResponse::Ok().json(UpdateSpaceReviewResponse {
         space_review: updated_space_review.into(),
     }))

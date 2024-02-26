@@ -28,8 +28,7 @@ impl ReservationDb {
         .bind(start_date)
         .bind(end_date)
         .fetch_one(pool)
-        .await?
-        .into();
+        .await?;
 
         Ok(reservation)
     }

@@ -8,7 +8,6 @@ use crate::{
         },
         DbPool,
     },
-    utils::hashids::encode_id,
 };
 use actix_web::{post, web, HttpResponse};
 use bigdecimal::BigDecimal;
@@ -54,7 +53,6 @@ pub async fn search_availability(
     });
     let end_date = data.end_date.unwrap_or_else(|| {
         // add a month to start date
-
         start_date + chrono::Duration::days(30)
     });
 
@@ -90,8 +88,8 @@ pub async fn search_availability(
         }
 
         availabilities.push(PublicAvailability {
-            id: encode_id(availability.id),
-            space_id: encode_id(availability.space_id),
+            id: availability.id,
+            space_id: availability.space_id,
             start_date: availability.start_date,
             end_date: availability.end_date,
             hourly_rate: availability.hourly_rate,
