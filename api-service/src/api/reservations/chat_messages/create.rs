@@ -5,6 +5,8 @@ use crate::{
         expo::send_push_notification,
         postgres::{
             reservation_chat_messages::ReservationChatMessageDb,
+            reservations::ReservationDb,
+            spaces::SpaceDb,
             users::{notif_tokens::UserNotifTokenDb, profiles::UserProfileDb},
             DbPool,
         },
@@ -44,15 +46,23 @@ pub async fn create_chat_message(
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
 
-    let chat_message = ReservationChatMessageDb::insert(
-        &pool,
-        data.reservation_id,
-        user_id,
-        data.message.clone(),
-    )
-    .await?;
+    let reservation = ReservationDb::get(&pool, data.reservation_id).await?;
+    let space = SpaceDb::get(&pool, reservation.space_id).await?;
+    // check if user is part of reservation or space
+    if !(reservation.user_id == user_id || space.user_id == user_id) {
+        return Err(ServiceError::Unauthorized);
+    }
 
-    let tokens = UserNotifTokenDb::list(&pool, user_id).await?;
+    let chat_message =
+        ReservationChatMessageDb::insert(&pool, data.reservation_id, user_id, data.message.clone())
+            .await?;
+
+    let other_user_id = if reservation.user_id == user_id {
+        space.user_id
+    } else {
+        reservation.user_id
+    };
+    let tokens = UserNotifTokenDb::list(&pool, other_user_id).await?;
     // get valid expo tokens, and dedupe
     let tokens = tokens
         .into_iter()
