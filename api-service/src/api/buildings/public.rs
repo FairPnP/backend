@@ -1,11 +1,11 @@
 use serde::Serialize;
 use sqlx::types::BigDecimal;
 
-use crate::services::postgres::buildings::entities::Building;
+use crate::{services::postgres::buildings::entities::Building, utils::hashids::encode_id};
 
 #[derive(Debug, Serialize)]
 pub struct PublicBuilding {
-    pub id: i32,
+    pub id: String,
     pub name: String,
     pub place_id: String,
     pub latitude: BigDecimal,
@@ -21,7 +21,7 @@ pub struct PublicBuilding {
 impl From<Building> for PublicBuilding {
     fn from(building: Building) -> Self {
         PublicBuilding {
-            id: building.id,
+            id: encode_id(building.id),
             name: building.name,
             place_id: building.place_id,
             latitude: building.latitude,

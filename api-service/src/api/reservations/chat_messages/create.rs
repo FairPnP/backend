@@ -66,9 +66,7 @@ pub async fn create_chat_message(
     // get valid expo tokens, and dedupe
     let tokens = tokens
         .into_iter()
-        .map(|t| t.expo_token)
-        .filter(|t| t.is_some())
-        .map(|t| t.unwrap())
+        .filter_map(|t| t.expo_token)
         .collect::<Vec<String>>();
 
     if !tokens.is_empty() {

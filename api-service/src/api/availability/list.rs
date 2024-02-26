@@ -1,8 +1,9 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
-    services::postgres::{availability::AvailabilityDb, DbPool},
     error::ServiceError,
+    services::postgres::{availability::AvailabilityDb, DbPool},
+    utils::hashids::decode_id_option,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -20,8 +21,8 @@ pub struct PaginationParams {
     #[validate(range(min = 1))]
     limit: Option<i32>,
     user: Option<bool>,
-    #[validate(range(min = 1))]
-    space_id: Option<i32>,
+    #[validate(length(min = 10))]
+    space_id: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -42,28 +43,22 @@ pub async fn list_availability(
 ) -> Result<HttpResponse, ServiceError> {
     let query = validate_req_data(query.into_inner())?;
     let user_id = get_user_id(&req)?;
+    let space_id = decode_id_option(&query.space_id)?;
     // default to user_id, but allow override
     let user = match query.user {
         // allow override
         Some(val) => match val {
             // if true, use user_id
-            true => Some(user_id.clone()),
+            true => Some(user_id),
             false => None,
         },
         // default to user_id
-        None => Some(user_id.clone()),
+        None => Some(user_id),
     };
 
     // limit default to 10, max 20
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
-    let availability = AvailabilityDb::list(
-        &pool,
-        query.offset_id,
-        limit,
-        user,
-        query.space_id.to_owned(),
-    )
-    .await?;
+    let availability = AvailabilityDb::list(&pool, query.offset_id, limit, user, space_id).await?;
     let next_offset_id = if availability.len() as i32 == limit {
         availability.last().map(|b| b.id)
     } else {

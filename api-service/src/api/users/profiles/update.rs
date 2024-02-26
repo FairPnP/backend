@@ -57,7 +57,7 @@ pub async fn update_user_profile(
     // create or update user profile
     let updated_user_profile = match user_profile {
         Ok(_) => UserProfileDb::update(&pool, user_id, data.name, data.avatar_url).await?,
-        Err(ServiceError::RowNotFound) => {
+        Err(ServiceError::NotFound) => {
             let name = match data.name {
                 Some(name) => name,
                 None => return Err(ServiceError::BadRequest("name is required".to_string())),

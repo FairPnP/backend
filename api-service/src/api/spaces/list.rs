@@ -1,11 +1,11 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
+    error::ServiceError,
     services::postgres::{
         spaces::{images::SpaceImageDb, SpaceDb},
         DbPool,
     },
-    error::ServiceError,
 };
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -80,12 +80,13 @@ pub async fn list_spaces(
     let spaces = spaces
         .into_iter()
         .map(|s| {
-            let mut s = PublicSpace::from(s);
-            s.img_urls = img_map
-                .get(&s.id)
+            let id = s.id;
+            let mut pub_s = PublicSpace::from(s);
+            pub_s.img_urls = img_map
+                .get(&id)
                 .map(|imgs| imgs.iter().map(|img| img.img_url.to_owned()).collect())
                 .unwrap_or_default();
-            s
+            pub_s
         })
         .collect::<Vec<PublicSpace>>();
 

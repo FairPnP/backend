@@ -1,4 +1,4 @@
-use crate::{services::postgres::DbPool, error::ServiceError};
+use crate::{error::ServiceError, services::postgres::DbPool};
 use actix_web::{post, web, HttpResponse};
 use std::{collections::HashMap, fs};
 
@@ -49,7 +49,7 @@ pub async fn reset_database(
     // Run the down.sql script
     let down_script =
         fs::read_to_string(format!("{}/down.sql", path)).expect("Failed to read down script");
-    let statements = down_script.split(";");
+    let statements = down_script.split(';');
 
     for statement in statements {
         if statement.trim().is_empty() {
@@ -69,9 +69,9 @@ pub async fn reset_database(
     // Run the up.sql script
     let up_script =
         fs::read_to_string(format!("{}/up.sql", path)).expect("Failed to read up script");
-    let mut statements = up_script.split(";");
+    let mut statements = up_script.split(';');
     if table_name.as_str() == "shared" {
-        statements = up_script.split("?");
+        statements = up_script.split('?');
     }
 
     for statement in statements {

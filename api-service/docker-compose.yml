@@ -21,6 +21,7 @@ services:
       STRIPE_REFRESH_URL: fairpnp://stripe/refresh
       REDIS_URL: redis://redis:6379/0
       GOOGLE_API_KEY: AIzaSyDMP8gXyXheqkMq8KdjZiIuM0YxADie1Z8
+      HASHIDS_SALT: local_test_salt
     volumes:
       - ./src:/usr/src/api-service/src
       - ./migrations:/usr/src/api-service/migrations

@@ -15,7 +15,6 @@ use services::{
 };
 use tracing::Level;
 use tracing_actix_web::TracingLogger;
-use tracing_subscriber;
 
 mod api;
 mod auth;
@@ -23,6 +22,7 @@ mod error;
 mod health;
 mod redirect;
 mod services;
+mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

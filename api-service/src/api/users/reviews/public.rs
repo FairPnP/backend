@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::services::postgres::users::reviews::entities::UserReview;
+use crate::{services::postgres::users::reviews::entities::UserReview, utils::hashids::encode_id};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicUserReview {
-    pub id: i32,
+    pub id: String,
     pub from_user_id: Uuid,
     pub to_user_id: Uuid,
     pub message: String,
@@ -17,7 +17,7 @@ pub struct PublicUserReview {
 impl From<UserReview> for PublicUserReview {
     fn from(user_image: UserReview) -> Self {
         PublicUserReview {
-            id: user_image.id,
+            id: encode_id(user_image.id),
             from_user_id: user_image.from_user_id,
             to_user_id: user_image.to_user_id,
             message: user_image.message,

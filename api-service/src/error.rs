@@ -25,14 +25,14 @@ pub enum ServiceError {
     Unauthorized,
     BadRequest(String),
     PoolError(String),
-    RowNotFound,
+    NotFound,
     ValidationError(ValidationErrors),
 }
 
 impl From<sqlx::Error> for ServiceError {
     fn from(error: sqlx::Error) -> Self {
         match error {
-            sqlx::Error::RowNotFound => ServiceError::RowNotFound,
+            sqlx::Error::RowNotFound => ServiceError::NotFound,
             sqlx::Error::Database(e) => ServiceError::DatabaseError(e.to_string()),
             sqlx::Error::PoolTimedOut => {
                 ServiceError::PoolError("Connection pool timeout".to_string())
@@ -63,6 +63,12 @@ impl From<StripeError> for ServiceError {
     }
 }
 
+impl From<harsh::Error> for ServiceError {
+    fn from(error: harsh::Error) -> Self {
+        ServiceError::NotFound
+    }
+}
+
 impl ResponseError for ServiceError {
     fn error_response(&self) -> HttpResponse {
         let (status_code, error_type, error_message) = match *self {
@@ -84,9 +90,7 @@ impl ResponseError for ServiceError {
             ServiceError::BadRequest(ref message) => {
                 (StatusCode::BAD_REQUEST, "Bad Request", message.to_string())
             }
-            ServiceError::RowNotFound => {
-                (StatusCode::NOT_FOUND, "Not Found", "Not Found".to_string())
-            }
+            ServiceError::NotFound => (StatusCode::NOT_FOUND, "Not Found", "Not Found".to_string()),
             ServiceError::PoolError(ref message) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Pool Error",
@@ -117,7 +121,7 @@ impl fmt::Display for ServiceError {
             ServiceError::Unauthorized => write!(f, "Unauthorized"),
             ServiceError::BadRequest(ref message) => write!(f, "Bad Request: {}", message),
             ServiceError::PoolError(ref message) => write!(f, "Pool Error: {}", message),
-            ServiceError::RowNotFound => write!(f, "Row not found"),
+            ServiceError::NotFound => write!(f, "Row not found"),
             ServiceError::ValidationError(ref errors) => {
                 write!(f, "Validation Error: {}", errors)
             }
