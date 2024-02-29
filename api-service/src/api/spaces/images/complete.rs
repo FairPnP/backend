@@ -1,12 +1,15 @@
 use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
+    error::ServiceError,
     services::postgres::{
-        spaces::images::{entities::SpaceImageStatus, SpaceImageDb},
-        spaces::SpaceDb,
+        spaces::{
+            images::{entities::SpaceImageStatus, SpaceImageDb},
+            SpaceDb,
+        },
         DbPool,
     },
-    error::ServiceError,
+    utils::hashids::decode_id,
 };
 use actix_web::{put, web, HttpResponse};
 use serde::Deserialize;
@@ -18,7 +21,7 @@ use validator::Validate;
 #[derive(Debug, Deserialize, Validate)]
 pub struct UpdateSpaceImageRequest {
     #[validate(length(min = 1))]
-    pub space_image_ids: Vec<i32>,
+    pub space_image_ids: Vec<String>,
 }
 
 // ======================================================================
@@ -32,7 +35,11 @@ pub async fn complete_space_image(
 ) -> Result<HttpResponse, ServiceError> {
     let user_id = get_user_id(&req)?;
     let data = validate_req_data(data.into_inner())?;
-    let space_image_ids = data.space_image_ids;
+    let space_image_ids = data
+        .space_image_ids
+        .iter()
+        .map(|id| decode_id(id))
+        .collect::<Result<Vec<i32>, _>>()?;
 
     // list pending space images
     let space_image =
