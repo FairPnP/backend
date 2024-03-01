@@ -15,10 +15,11 @@ COPY go.sum .
 RUN go mod download
 
 # Copy the source code into the container
-COPY . .
-
-# Expose the port the app runs on
-EXPOSE 8080
+COPY main.go .
+COPY app .
+COPY events .
+COPY postgres .
+COPY webhook .
 
 # Run air for hot reloading
 CMD ["air"]

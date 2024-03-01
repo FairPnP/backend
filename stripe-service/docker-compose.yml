@@ -4,7 +4,7 @@ services:
   stripe:
     build:
       context: .
-      dockerfile: Dockerfile
+      target: local
     volumes:
       - .:/app
       - go-mod:/go/pkg/mod
