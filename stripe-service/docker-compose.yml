@@ -12,29 +12,30 @@ services:
     ports:
       - "3001:3001"
     environment:
-      DB_USER: stripe
-      DB_PASSWORD: password
-      DB_NAME: postgres
-      DB_HOST: db
-      DB_PORT: 5432
+      GIN_MODE: debug
       WEB_SERVER_PORT: 3001
+      AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
+      AUTH_JWKS_URL: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
+      DATABASE_URL: postgres://postgres:password@db:5432/api
       STRIPE_SECRET_KEY: sk_test_51OPtRcEjtf5XGOQ8CfWLHucJDdEc1mEiJ0YpdSahFC9lkvkehgX0k5vSmf8AYUcKNSlcOn7ls9X85AjvxsB2izKy00sHODun4C
       STRIPE_WEBHOOK_SECRET: whsec_f552175b933894163f38038b2a5a4527cd5397bcab8fd7524eb8b62073198079
+      STRIPE_RETURN_URL: fairpnp://stripe/return
+      STRIPE_REFRESH_URL: fairpnp://stripe/refresh
     depends_on:
       - db
 
   db:
     image: postgres:13
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: stripe
+      POSTGRES_DB: api
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata2:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  pgdata2:
   go-mod:
   go-build:
