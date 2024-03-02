@@ -1,0 +1,19 @@
+[Unit]
+Description=Stripe Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/stripe-service
+Restart=on-failure
+User=ec2-user
+Group=ec2-user
+Environment="STRIPE_SECRET_KEY={{ stripe_secret_key }}"
+Environment="STRIPE_WEBHOOK_KEY={{ stripe_webhook_key }}"
+Environment="STRIPE_RETURN_URL={{ stripe_return_url }}"
+Environment="STRIPE_REFRESH_URL={{ stripe_refresh_url }}"
+StandardOutput=append:{{ log_dir }}/api-service.log
+StandardError=append:{{ log_dir }}/api-service.error.log
+
+[Install]
+WantedBy=multi-user.target
