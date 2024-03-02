@@ -38,6 +38,7 @@ services:
     ports:
       - "3001:3001"
     environment:
+      BASE_URL: http://192.168.0.114:3001
       GIN_MODE: debug
       WEB_SERVER_PORT: 3001
       AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
