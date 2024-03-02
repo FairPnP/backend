@@ -7,7 +7,7 @@ import (
 	"stripe-service/app"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jmoiron/sqlx"
 )
 
 // SetupHealthRoutes registers health-related routes
@@ -24,7 +24,7 @@ func SetupRoutes(router *gin.Engine, appState *app.AppState) {
 // healthCheck performs the actual health checks for your services
 func healthCheck(appState *app.AppState) error {
 	// Database check
-	if err := dbHealthCheck(appState.DBPool); err != nil {
+	if err := dbHealthCheck(appState.DB); err != nil {
 		return err
 	}
 
@@ -32,8 +32,8 @@ func healthCheck(appState *app.AppState) error {
 }
 
 // dbHealthCheck checks the health of the database connection
-func dbHealthCheck(dbPool *pgxpool.Pool) error {
-	if err := dbPool.Ping(context.Background()); err != nil {
+func dbHealthCheck(db *sqlx.DB) error {
+	if err := db.PingContext(context.Background()); err != nil {
 		return err
 	}
 	return nil

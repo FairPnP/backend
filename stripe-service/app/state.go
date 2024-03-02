@@ -6,11 +6,11 @@ import (
 	"stripe-service/postgres"
 
 	"github.com/MicahParks/keyfunc/v3"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jmoiron/sqlx"
 )
 
 type AppState struct {
-	DBPool     *pgxpool.Pool
+	DB         *sqlx.DB
 	JwtKeyFunc keyfunc.Keyfunc
 }
 
@@ -18,7 +18,7 @@ func CreateAppState() (*AppState, error) {
 	jwksURL := os.Getenv("AUTH_JWKS_URL")
 	jwks, err := keyfunc.NewDefault([]string{jwksURL})
 	if err != nil {
-		log.Fatalf("Failed to create JWK Set from resource at the given URL.\nError: %s", err)
+		log.Printf("Failed to create JWK Set from resource at the given URL.\nError: %s", err)
 		return nil, err
 	}
 
@@ -29,7 +29,7 @@ func CreateAppState() (*AppState, error) {
 	}
 
 	appState := &AppState{
-		DBPool:     dbpool,
+		DB:         dbpool,
 		JwtKeyFunc: jwks,
 	}
 
@@ -37,7 +37,7 @@ func CreateAppState() (*AppState, error) {
 }
 
 func (a *AppState) Close() {
-	if a.DBPool != nil {
-		a.DBPool.Close()
+	if a.DB != nil {
+		a.DB.Close()
 	}
 }
