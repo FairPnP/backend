@@ -1,9 +1,9 @@
 package api
 
 import (
-	"stripe-service/api/accounts"
 	"stripe-service/app"
 	"stripe-service/auth"
+	"stripe-service/routes/api/accounts"
 
 	"github.com/gin-gonic/gin"
 )

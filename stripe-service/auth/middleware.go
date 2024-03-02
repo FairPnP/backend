@@ -31,6 +31,7 @@ func JWTAuthMiddleware(appState *app.AppState) gin.HandlerFunc {
 		}
 
 		// Parse and validate the token.
+		// TODO: remove jwt.WithoutClaimsValidation() and add claims validation
 		token, err := jwt.Parse(tokenString, appState.JwtKeyFunc.Keyfunc, jwt.WithIssuer(os.Getenv("AUTH_ISSUER")), jwt.WithoutClaimsValidation())
 		if err != nil {
 			log.Printf("Error parsing token: %v\n", err)

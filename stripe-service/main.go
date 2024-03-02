@@ -6,10 +6,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"stripe-service/api"
 	"stripe-service/app"
-	"stripe-service/health"
-	"stripe-service/webhook"
+	"stripe-service/routes"
 	"syscall"
 	"time"
 
@@ -25,16 +23,8 @@ func main() {
 		log.Fatalf("Error creating application state: %v", err)
 	}
 
-	// http.HandleFunc("/webhook", func(w http.ResponseWriter, req *http.Request) {
-	// webhook.HandleWebhook(appState, w, req)
-	// })
-
 	router := gin.Default()
-
-	health.SetupRoutes(router, appState)
-	api.SetupRoutes(router, appState)
-	// webhook
-	router.POST("/webhook", webhook.HandleWebhook(appState))
+	routes.SetupRoutes(router, appState)
 
 	port := os.Getenv("WEB_SERVER_PORT")
 	server := &http.Server{
