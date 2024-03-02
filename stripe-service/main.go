@@ -9,6 +9,7 @@ import (
 	"stripe-service/api"
 	"stripe-service/app"
 	"stripe-service/health"
+	"stripe-service/webhook"
 	"syscall"
 	"time"
 
@@ -32,6 +33,8 @@ func main() {
 
 	health.SetupRoutes(router, appState)
 	api.SetupRoutes(router, appState)
+	// webhook
+	router.POST("/webhook", webhook.HandleWebhook(appState))
 
 	port := os.Getenv("WEB_SERVER_PORT")
 	server := &http.Server{
