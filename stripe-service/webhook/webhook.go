@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"stripe-service/app"
-	"stripe-service/events"
+	"stripe-service/webhook/events"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v76/webhook"

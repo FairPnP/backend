@@ -17,7 +17,7 @@ func SetupRoutes(router *gin.Engine, appState *app.AppState) {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Service Unhealthy", "error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
+		c.Status(http.StatusOK)
 	})
 }
 

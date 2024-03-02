@@ -16,8 +16,10 @@ RUN go mod download
 
 # Copy the source code into the container
 COPY main.go .
+COPY api .
 COPY app .
-COPY events .
+COPY auth .
+COPY health .
 COPY postgres .
 COPY webhook .
 
