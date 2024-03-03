@@ -22,7 +22,11 @@ type DashboardResponse struct {
 
 func Dashboard(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := auth.GetUserId(c)
+		userId, err := auth.GetUserId(c)
+		if err != nil {
+			c.Status(http.StatusUnauthorized)
+			return
+		}
 
 		// Check if account already exists
 		accountEntity, err := accountdb.Get(appState.DB, userId)

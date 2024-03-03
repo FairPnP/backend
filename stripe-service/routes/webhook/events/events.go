@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"stripe-service/app"
+	"stripe-service/postgres/eventdb"
 	"sync"
 
 	"github.com/stripe/stripe-go/v76"
@@ -30,32 +31,67 @@ func initializeWorkerPool(numWorkers int, appState *app.AppState) {
 // worker is the function that runs for each worker in the pool, processing tasks.
 func worker(appState *app.AppState) {
 	for task := range taskQueue {
-		processEvent(appState, task.Event)
+		err := processEvent(appState, task.Event)
+		if err != nil {
+			log.Printf("Error processing event: %v\n", err)
+		}
 	}
 }
 
 // processEvent processes the Stripe event based on its type.
-func processEvent(appState *app.AppState, event stripe.Event) {
+func processEvent(appState *app.AppState, event stripe.Event) error {
+	// track whether the event was processed successfully
+	success := false
+
+	// update status based on the result of the processing
+	defer func() {
+		if success {
+			// set status to processed
+			err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusProcessed)
+			if err != nil {
+				log.Printf("Error setting event as processed: %v\n", err)
+			}
+		} else {
+			// set status to failed
+			err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusFailed)
+			if err != nil {
+				log.Printf("Error updating event status: %v\n", err)
+			}
+		}
+	}()
+
+	// set status to processing
+	err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusProcessing)
+	if err != nil {
+		return err
+	}
+
 	switch event.Type {
 	case "payment_intent.succeeded":
 		var paymentIntent stripe.PaymentIntent
 		if err := json.Unmarshal(event.Data.Raw, &paymentIntent); err != nil {
-			log.Printf("Worker error parsing payment_intent.succeeded: %v\n", err)
-			return
+			return err
 		}
-		HandlePaymentIntentSucceeded(appState, paymentIntent)
+		if err := HandlePaymentIntentSucceeded(appState, paymentIntent); err != nil {
+			return err
+		}
+		success = true
 
 	case "payment_method.attached":
 		var paymentMethod stripe.PaymentMethod
 		if err := json.Unmarshal(event.Data.Raw, &paymentMethod); err != nil {
-			log.Printf("Worker error parsing payment_method.attached: %v\n", err)
-			return
+			return err
 		}
-		HandlePaymentMethodAttached(appState, paymentMethod)
+		if err := HandlePaymentMethodAttached(appState, paymentMethod); err != nil {
+			return err
+		}
+		success = true
 
 	default:
 		log.Printf("Worker unhandled event type: %s\n", event.Type)
 	}
+
+	return nil
 }
 
 // HandleEvent queues the event to be processed by a worker.

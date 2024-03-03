@@ -1,13 +1,12 @@
 package accountdb
 
 import (
-	"stripe-service/postgres/entities"
-
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
-func Insert(pool *sqlx.DB, userID string, accountID string) (*entities.Account, error) {
-	var stripeAccount entities.Account
+func Insert(pool *sqlx.DB, userID uuid.UUID, accountID string) (*Account, error) {
+	var stripeAccount Account
 	err := pool.QueryRowx(
 		"INSERT INTO stripe_accounts (user_id, account_id) VALUES ($1, $2) RETURNING *",
 		userID, accountID,
@@ -15,14 +14,14 @@ func Insert(pool *sqlx.DB, userID string, accountID string) (*entities.Account, 
 	return &stripeAccount, err
 }
 
-func Get(pool *sqlx.DB, userID string) (*entities.Account, error) {
-	var stripeAccount entities.Account
+func Get(pool *sqlx.DB, userID uuid.UUID) (*Account, error) {
+	var stripeAccount Account
 	err := pool.QueryRowx("SELECT * FROM stripe_accounts WHERE user_id = $1", userID).StructScan(&stripeAccount)
 	return &stripeAccount, err
 }
 
-func Update(pool *sqlx.DB, userID string, accountID *string) (*entities.Account, error) {
-	var stripeAccount entities.Account
+func Update(pool *sqlx.DB, userID uuid.UUID, accountID *string) (*Account, error) {
+	var stripeAccount Account
 	err := pool.QueryRowx(
 		"UPDATE stripe_accounts SET account_id = COALESCE($1, account_id) WHERE user_id = $2 RETURNING *",
 		accountID, userID,
@@ -30,7 +29,7 @@ func Update(pool *sqlx.DB, userID string, accountID *string) (*entities.Account,
 	return &stripeAccount, err
 }
 
-func Delete(pool *sqlx.DB, userID string) error {
+func Delete(pool *sqlx.DB, userID uuid.UUID) error {
 	_, err := pool.Exec("DELETE FROM stripe_accounts WHERE user_id = $1", userID)
 	return err
 }

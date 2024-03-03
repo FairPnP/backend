@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"stripe-service/app"
+	"stripe-service/postgres/eventdb"
 	"stripe-service/routes/webhook/events"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,9 @@ func HandleWebhook(appState *app.AppState) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid signature"})
 			return
 		}
+
+		// Insert the event into the database
+		eventdb.Insert(appState.DB, event.Account, event.ID, string(event.Type), string(payload), eventdb.StatusReceived)
 
 		// Handle the event
 		events.HandleEvent(appState, event)

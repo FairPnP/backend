@@ -16,7 +16,11 @@ type GetAccountResponse struct {
 
 func GetAccount(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := auth.GetUserId(c)
+		userId, err := auth.GetUserId(c)
+		if err != nil {
+			c.Status(http.StatusUnauthorized)
+			return
+		}
 
 		acc, err := accountdb.Get(appState.DB, userId)
 		if err != nil {

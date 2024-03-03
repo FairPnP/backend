@@ -7,6 +7,8 @@ import (
 	"github.com/stripe/stripe-go/v76"
 )
 
-func HandlePaymentMethodAttached(appState *app.AppState, paymentMethod stripe.PaymentMethod) {
+func HandlePaymentMethodAttached(appState *app.AppState, paymentMethod stripe.PaymentMethod) error {
 	log.Printf("Payment method %s was attached to a customer.", paymentMethod.ID)
+
+	return nil
 }
