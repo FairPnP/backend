@@ -18,7 +18,6 @@ type StripeEvent struct {
 	AccountID    string      `db:"account_id" json:"account_id"`
 	EventID      string      `db:"event_id" json:"event_id"`
 	EventType    string      `db:"event_type" json:"event_type"`
-	EventData    string      `db:"event_data" json:"event_data"`
 	Status       EventStatus `db:"status" json:"status"`
 	CreatedAt    time.Time   `db:"created_at" json:"created_at"`
 	LastModified time.Time   `db:"last_modified" json:"last_modified"`

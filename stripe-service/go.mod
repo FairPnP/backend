@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/jmoiron/sqlx v1.3.5
+	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/stripe/stripe-go/v76 v76.19.0
 )
 

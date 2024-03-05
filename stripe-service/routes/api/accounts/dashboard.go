@@ -34,7 +34,20 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 			// If not found, create a new Stripe account
 			if err == sql.ErrNoRows {
 				params := &stripe.AccountParams{
-					Type: stripe.String(string(stripe.AccountTypeExpress)),
+					Type:    stripe.String(string(stripe.AccountTypeExpress)),
+					Country: stripe.String("CA"),
+					Capabilities: &stripe.AccountCapabilitiesParams{
+						Transfers: &stripe.AccountCapabilitiesTransfersParams{
+							Requested: stripe.Bool(true),
+						},
+					},
+					Email:        stripe.String("kylkrie@gmail.com"),
+					BusinessType: stripe.String(string(stripe.AccountBusinessTypeIndividual)),
+					Individual: &stripe.PersonParams{
+						Email:     stripe.String("kylkrie@gmail.com"),
+						FirstName: stripe.String("Kyle"),
+						LastName:  stripe.String("Smith"),
+					},
 				}
 				acc, err := account.New(params)
 				if err != nil {

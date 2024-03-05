@@ -1,12 +1,14 @@
 package events
 
 import (
-	"log"
 	"stripe-service/app"
+	"stripe-service/postgres/accountdb"
 
 	"github.com/stripe/stripe-go/v76"
 )
 
-func HandleAccountUpdated(appState *app.AppState, account stripe.Account) {
-	log.Printf("Account updated: %v\n", account.ID)
+func HandleAccountUpdated(appState *app.AppState, account stripe.Account) error {
+	accountdb.Update(appState.DB, account.ID, account.DetailsSubmitted, string(account.Capabilities.Transfers))
+
+	return nil
 }

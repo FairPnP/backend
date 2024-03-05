@@ -4,6 +4,8 @@ CREATE TABLE stripe_accounts (
     account_id VARCHAR(255) NOT NULL,
     created_at timestamp NOT NULL DEFAULT NOW(),
     last_modified timestamp NOT NULL DEFAULT NOW(),
+    details_submitted BOOLEAN NOT NULL DEFAULT FALSE,
+    transfers_status VARCHAR(50) NOT NULL DEFAULT 'disabled',
 
     CONSTRAINT unique_user_account_id UNIQUE (user_id, account_id)
 );

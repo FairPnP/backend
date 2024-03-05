@@ -67,6 +67,16 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 	}
 
 	switch event.Type {
+	case "account.updated":
+		var account stripe.Account
+		if err := json.Unmarshal(event.Data.Raw, &account); err != nil {
+			return err
+		}
+		if err := HandleAccountUpdated(appState, account); err != nil {
+			return err
+		}
+		success = true
+
 	case "payment_intent.succeeded":
 		var paymentIntent stripe.PaymentIntent
 		if err := json.Unmarshal(event.Data.Raw, &paymentIntent); err != nil {

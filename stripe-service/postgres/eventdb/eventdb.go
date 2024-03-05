@@ -4,11 +4,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Insert(db *sqlx.DB, accountID, eventID, eventType, eventData string, status EventStatus) (*StripeEvent, error) {
+func Insert(db *sqlx.DB, accountID, eventID, eventType string, status EventStatus) (*StripeEvent, error) {
 	var event StripeEvent
 	err := db.QueryRowx(
-		"INSERT INTO stripe_events (account_id, event_id, event_type, event_data, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-		accountID, eventID, eventType, eventData, status,
+		"INSERT INTO stripe_events (account_id, event_id, event_type, status) VALUES ($1, $2, $3, $4) RETURNING *",
+		accountID, eventID, eventType, status,
 	).StructScan(&event)
 	if err != nil {
 		return nil, err

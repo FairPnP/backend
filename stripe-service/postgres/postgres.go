@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -17,7 +16,6 @@ func CreatePool() (*sqlx.DB, error) {
 
 	db, err := sqlx.Open("pgx", databaseURL)
 	if err != nil {
-		log.Printf("Unable to create connection pool: %v\n", err)
 		return nil, err
 	}
 

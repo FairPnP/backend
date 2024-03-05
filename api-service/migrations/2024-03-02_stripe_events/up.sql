@@ -3,7 +3,6 @@ CREATE TABLE stripe_events (
     account_id VARCHAR(255) NOT NULL,
     event_id VARCHAR(255) NOT NULL UNIQUE,
     event_type VARCHAR(255) NOT NULL,
-    event_data JSONB NOT NULL,
     status VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     last_modified TIMESTAMP NOT NULL DEFAULT NOW(),

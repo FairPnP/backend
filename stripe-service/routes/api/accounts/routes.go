@@ -9,7 +9,7 @@ import (
 func SetupRoutes(router *gin.RouterGroup, appState *app.AppState) {
 	apiGroup := router.Group("/accounts/v1")
 	{
-		apiGroup.POST("/dashboard", Dashboard(appState))
 		apiGroup.GET("", GetAccount(appState))
+		apiGroup.POST("/dashboard", Dashboard(appState))
 	}
 }

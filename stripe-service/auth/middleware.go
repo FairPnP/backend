@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -34,7 +33,6 @@ func JWTAuthMiddleware(appState *app.AppState) gin.HandlerFunc {
 		// TODO: remove jwt.WithoutClaimsValidation() and add claims validation
 		token, err := jwt.Parse(tokenString, appState.JwtKeyFunc.Keyfunc, jwt.WithIssuer(os.Getenv("AUTH_ISSUER")), jwt.WithoutClaimsValidation())
 		if err != nil {
-			log.Printf("Error parsing token: %v\n", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
 			return

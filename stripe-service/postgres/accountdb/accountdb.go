@@ -20,11 +20,11 @@ func Get(pool *sqlx.DB, userID uuid.UUID) (*Account, error) {
 	return &stripeAccount, err
 }
 
-func Update(pool *sqlx.DB, userID uuid.UUID, accountID *string) (*Account, error) {
+func Update(pool *sqlx.DB, accountID string, detailsSubmitted bool, transfersStatus string) (*Account, error) {
 	var stripeAccount Account
 	err := pool.QueryRowx(
-		"UPDATE stripe_accounts SET account_id = COALESCE($1, account_id) WHERE user_id = $2 RETURNING *",
-		accountID, userID,
+		"UPDATE stripe_accounts SET details_submitted = $2, transfers_status = $3 WHERE account_id = $1 RETURNING *",
+		accountID, detailsSubmitted, transfersStatus,
 	).StructScan(&stripeAccount)
 	return &stripeAccount, err
 }
