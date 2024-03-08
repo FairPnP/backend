@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -14,6 +15,8 @@ type ginHands struct {
 	StatusCode int
 	ClientIP   string
 	MsgStr     string
+	RequestID  string
+	UserID     string
 }
 
 func ErrorLogger() gin.HandlerFunc {
@@ -52,6 +55,8 @@ func Logger() gin.HandlerFunc {
 		if msg == "" {
 			msg = "Request"
 		}
+		requestID, _ := c.Get("requestID")
+		userID, _ := c.Get("userID")
 		cData := &ginHands{
 			Path:       path,
 			Latency:    time.Since(t),
@@ -59,6 +64,8 @@ func Logger() gin.HandlerFunc {
 			StatusCode: c.Writer.Status(),
 			ClientIP:   c.ClientIP(),
 			MsgStr:     msg,
+			RequestID:  requestID.(string),
+			UserID:     userID.(string),
 		}
 
 		logSwitch(cData)
@@ -68,14 +75,21 @@ func Logger() gin.HandlerFunc {
 func logSwitch(data *ginHands) {
 	switch {
 	case data.StatusCode >= 400 && data.StatusCode < 500:
-		{
-			log.Warn().Str("m", data.Method).Str("p", data.Path).Dur("rt", data.Latency).Int("s", data.StatusCode).Str("ip", data.ClientIP).Msg(data.MsgStr)
-		}
+		addLogData(log.Warn(), data)
 	case data.StatusCode >= 500:
-		{
-			log.Error().Str("m", data.Method).Str("p", data.Path).Dur("rt", data.Latency).Int("s", data.StatusCode).Str("ip", data.ClientIP).Msg(data.MsgStr)
-		}
+		addLogData(log.Error(), data)
 	default:
-		log.Info().Str("m", data.Method).Str("p", data.Path).Dur("rt", data.Latency).Int("s", data.StatusCode).Str("ip", data.ClientIP).Msg(data.MsgStr)
+		addLogData(log.Info(), data)
 	}
+}
+
+func addLogData(logEvent *zerolog.Event, data *ginHands) {
+	e := logEvent.Str("method", data.Method).Str("path", data.Path).Dur("latency", data.Latency).Int("status", data.StatusCode).Str("client_ip", data.ClientIP)
+	if data.RequestID != "" {
+		e = e.Str("request_id", data.RequestID)
+	}
+	if data.UserID != "" {
+		e = e.Str("user_id", data.UserID)
+	}
+	e.Msg(data.MsgStr)
 }
