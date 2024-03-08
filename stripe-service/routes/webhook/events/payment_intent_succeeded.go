@@ -1,14 +1,14 @@
 package events
 
 import (
-	"log"
 	"stripe-service/app"
 
+	"github.com/rs/zerolog/log"
 	"github.com/stripe/stripe-go/v76"
 )
 
 func HandlePaymentIntentSucceeded(appState *app.AppState, paymentIntent stripe.PaymentIntent) error {
-	log.Printf("Successful payment for %d.", paymentIntent.Amount)
+	log.Info().Int64("amount", paymentIntent.Amount).Msg("Successful payment for payment intent.")
 
 	return nil
 }

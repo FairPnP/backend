@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"stripe-service/app"
@@ -10,6 +9,7 @@ import (
 	"stripe-service/routes/webhook/events"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"github.com/stripe/stripe-go/v76/webhook"
 )
 
@@ -20,7 +20,7 @@ func HandleWebhook(appState *app.AppState) gin.HandlerFunc {
 
 		payload, err := io.ReadAll(c.Request.Body)
 		if err != nil {
-			log.Printf("Error reading request body: %v\n", err)
+			log.Error().Err(err).Msg("Error reading request body")
 			c.AbortWithStatus(http.StatusServiceUnavailable)
 			return
 		}
@@ -31,7 +31,7 @@ func HandleWebhook(appState *app.AppState) gin.HandlerFunc {
 		// Verify the webhook signature
 		event, err := webhook.ConstructEvent(payload, c.GetHeader("Stripe-Signature"), endpointSecret)
 		if err != nil {
-			log.Printf("Error verifying webhook signature: %v\n", err)
+			log.Error().Err(err).Msg("Error verifying webhook signature")
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid signature"})
 			return
 		}
@@ -39,7 +39,7 @@ func HandleWebhook(appState *app.AppState) gin.HandlerFunc {
 		// Insert the event into the database
 		_, err = eventdb.Insert(appState.DB, event.Account, event.ID, string(event.Type), eventdb.StatusReceived)
 		if err != nil {
-			log.Printf("Error inserting event into database: %v\n", err)
+			log.Error().Err(err).Msg("Error inserting event into database")
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}

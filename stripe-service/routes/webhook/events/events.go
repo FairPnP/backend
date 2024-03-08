@@ -2,11 +2,11 @@ package events
 
 import (
 	"encoding/json"
-	"log"
 	"stripe-service/app"
 	"stripe-service/postgres/eventdb"
 	"sync"
 
+	"github.com/rs/zerolog/log"
 	"github.com/stripe/stripe-go/v76"
 )
 
@@ -33,7 +33,7 @@ func worker(appState *app.AppState) {
 	for task := range taskQueue {
 		err := processEvent(appState, task.Event)
 		if err != nil {
-			log.Printf("Error processing event: %v\n", err)
+			log.Error().Err(err).Msg("Error processing event")
 		}
 	}
 }
@@ -49,13 +49,13 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 			// set status to processed
 			err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusProcessed)
 			if err != nil {
-				log.Printf("Error setting event as processed: %v\n", err)
+				log.Error().Err(err).Msg("Error setting event as processed")
 			}
 		} else {
 			// set status to failed
 			err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusFailed)
 			if err != nil {
-				log.Printf("Error setting event as failed: %v\n", err)
+				log.Error().Err(err).Msg("Error setting event as failed")
 			}
 		}
 	}()
@@ -63,7 +63,7 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 	// set status to processing
 	err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusProcessing)
 	if err != nil {
-		log.Printf("Error setting event as processing: %v\n", err)
+		log.Error().Err(err).Msg("Error setting event as processing")
 		return err
 	}
 
@@ -99,7 +99,7 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 		success = true
 
 	default:
-		log.Printf("Worker unhandled event type: %s\n", event.Type)
+		log.Warn().Str("event_type", string(event.Type)).Msg("Worker unhandled event type")
 	}
 
 	return nil
