@@ -3,6 +3,7 @@ package events
 import (
 	"net/http"
 	"stripe-service/app"
+	"stripe-service/apperror"
 	"stripe-service/postgres/eventdb"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ func ListEvents(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		events, err := eventdb.List(appState.DB)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			apperror.HandleDBError(c, err)
 			return
 		}
 

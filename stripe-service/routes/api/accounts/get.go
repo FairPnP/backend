@@ -1,9 +1,9 @@
 package accounts
 
 import (
-	"database/sql"
 	"net/http"
 	"stripe-service/app"
+	"stripe-service/apperror"
 	"stripe-service/auth"
 	"stripe-service/postgres/accountdb"
 
@@ -18,18 +18,14 @@ func GetAccount(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId, err := auth.GetUserId(c)
 		if err != nil {
-			c.Status(http.StatusUnauthorized)
+			c.Error(err)
 			return
 		}
 
 		acc, err := accountdb.Get(appState.DB, userId)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Account not found"})
-				return
-			}
-
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			apperror.HandleDBError(c, err)
+			return
 		}
 
 		c.JSON(http.StatusOK, GetAccountResponse{AccountId: acc.AccountID})

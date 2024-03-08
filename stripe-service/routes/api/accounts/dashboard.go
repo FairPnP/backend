@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"stripe-service/app"
+	"stripe-service/apperror"
 	"stripe-service/auth"
 	"stripe-service/postgres/accountdb"
 
@@ -24,7 +25,7 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId, err := auth.GetUserId(c)
 		if err != nil {
-			c.Status(http.StatusUnauthorized)
+			c.Error(err)
 			return
 		}
 
@@ -51,18 +52,18 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 				}
 				acc, err := account.New(params)
 				if err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					apperror.HandleStripeError(c, err)
 					return
 				}
 
 				// Insert account into database
 				accountEntity, err = accountdb.Insert(appState.DB, userId, acc.ID)
 				if err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					apperror.HandleDBError(c, err)
 					return
 				}
 			} else {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				apperror.HandleDBError(c, err)
 				return
 			}
 		}
@@ -70,7 +71,7 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 		// Check if account is already verified
 		acc, err := account.GetByID(accountEntity.AccountID, nil)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			apperror.HandleStripeError(c, err)
 			return
 		}
 
@@ -82,7 +83,7 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 			}
 			loginLink, err := loginlink.New(loginLinkParams)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				apperror.HandleStripeError(c, err)
 				return
 			}
 			link = loginLink.URL
@@ -99,7 +100,7 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 			}
 			accLink, err := accountlink.New(accountLinkParams)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				apperror.HandleStripeError(c, err)
 				return
 			}
 			link = accLink.URL

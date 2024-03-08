@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,18 +11,23 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/stripe/stripe-go/v76"
 )
 
 func main() {
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
+
 	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
 	appState, err := app.CreateAppState()
 	if err != nil {
-		log.Fatalf("Error creating application state: %v", err)
+		log.Fatal().Err(err).Msg("Error creating app state")
 	}
 
-	router := gin.Default()
+	router := gin.New()
 	routes.SetupRoutes(router, appState)
 
 	port := os.Getenv("WEB_SERVER_PORT")
@@ -34,9 +38,9 @@ func main() {
 
 	// Start the server
 	go func() {
-		log.Printf("Listening on %s", server.Addr)
+		log.Info().Msgf("Starting server on port %s", port)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("HTTP server ListenAndServe: %v", err)
+			log.Fatal().Err(err).Msg("HTTP server ListenAndServe")
 		}
 	}()
 
@@ -46,7 +50,7 @@ func main() {
 
 	// Block until a signal is received.
 	<-c
-	log.Println("Shutting down gracefully...")
+	log.Info().Msg("Shutting down gracefully...")
 
 	// Create a deadline to wait for.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -54,7 +58,7 @@ func main() {
 
 	// Doesn't block if no connections, but will wait until the timeout deadline.
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("HTTP server Shutdown: %v", err)
+		log.Fatal().Err(err).Msg("HTTP server Shutdown")
 	}
 
 	// Now that the server has shut down, we can close other resources.

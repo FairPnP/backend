@@ -37,7 +37,12 @@ func HandleWebhook(appState *app.AppState) gin.HandlerFunc {
 		}
 
 		// Insert the event into the database
-		eventdb.Insert(appState.DB, event.Account, event.ID, string(event.Type), eventdb.StatusReceived)
+		_, err = eventdb.Insert(appState.DB, event.Account, event.ID, string(event.Type), eventdb.StatusReceived)
+		if err != nil {
+			log.Printf("Error inserting event into database: %v\n", err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 
 		// Handle the event
 		events.HandleEvent(appState, event)

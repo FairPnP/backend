@@ -2,9 +2,8 @@ package customers
 
 import (
 	"database/sql"
-	"log"
-	"net/http"
 	"stripe-service/app"
+	"stripe-service/apperror"
 	"stripe-service/auth"
 	"stripe-service/postgres/customerdb"
 
@@ -30,7 +29,7 @@ func PostIntent(appState *app.AppState) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId, err := auth.GetUserId(c)
 		if err != nil {
-			c.Status(http.StatusUnauthorized)
+			c.Error(err)
 			return
 		}
 
@@ -52,17 +51,16 @@ func PostIntent(appState *app.AppState) gin.HandlerFunc {
 					},
 				)
 				if err != nil {
-					c.JSON(500, gin.H{"error": "Failed to create customer"})
+					apperror.HandleStripeError(c, err)
 					return
 				}
 
 				// insert customer into database
 				cus, err = customerdb.Insert(appState.DB, userId, stripeCustomer.ID)
 				if err != nil {
-					c.JSON(500, gin.H{"error": "Failed to insert customer into database"})
+					apperror.HandleDBError(c, err)
 					return
 				}
-
 			}
 		}
 
@@ -83,8 +81,7 @@ func PostIntent(appState *app.AppState) gin.HandlerFunc {
 			},
 		)
 		if err != nil {
-			log.Println(err)
-			c.JSON(500, gin.H{"error": "Failed to create ephemeral key"})
+			apperror.HandleStripeError(c, err)
 			return
 		}
 
@@ -97,7 +94,7 @@ func PostIntent(appState *app.AppState) gin.HandlerFunc {
 			},
 		)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create payment intent"})
+			apperror.HandleStripeError(c, err)
 			return
 		}
 

@@ -55,7 +55,7 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 			// set status to failed
 			err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusFailed)
 			if err != nil {
-				log.Printf("Error updating event status: %v\n", err)
+				log.Printf("Error setting event as failed: %v\n", err)
 			}
 		}
 	}()
@@ -63,6 +63,7 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 	// set status to processing
 	err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusProcessing)
 	if err != nil {
+		log.Printf("Error setting event as processing: %v\n", err)
 		return err
 	}
 
