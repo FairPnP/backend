@@ -11,7 +11,7 @@ func StripeMetadata(c *gin.Context) map[string]string {
 	}
 
 	// try get userId
-	userID, exists := c.Get("userId")
+	userID, exists := c.Get("userID")
 	if exists {
 		metadata["user_id"] = userID.(string)
 	}

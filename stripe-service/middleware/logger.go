@@ -69,13 +69,13 @@ func logSwitch(data *ginHands) {
 	switch {
 	case data.StatusCode >= 400 && data.StatusCode < 500:
 		{
-			log.Warn().Str("method", data.Method).Str("path", data.Path).Dur("resp_time", data.Latency).Int("status", data.StatusCode).Str("client_ip", data.ClientIP).Msg(data.MsgStr)
+			log.Warn().Str("m", data.Method).Str("p", data.Path).Dur("rt", data.Latency).Int("s", data.StatusCode).Str("ip", data.ClientIP).Msg(data.MsgStr)
 		}
 	case data.StatusCode >= 500:
 		{
-			log.Error().Str("method", data.Method).Str("path", data.Path).Dur("resp_time", data.Latency).Int("status", data.StatusCode).Str("client_ip", data.ClientIP).Msg(data.MsgStr)
+			log.Error().Str("m", data.Method).Str("p", data.Path).Dur("rt", data.Latency).Int("s", data.StatusCode).Str("ip", data.ClientIP).Msg(data.MsgStr)
 		}
 	default:
-		log.Info().Str("method", data.Method).Str("path", data.Path).Dur("resp_time", data.Latency).Int("status", data.StatusCode).Str("client_ip", data.ClientIP).Msg(data.MsgStr)
+		log.Info().Str("m", data.Method).Str("p", data.Path).Dur("rt", data.Latency).Int("s", data.StatusCode).Str("ip", data.ClientIP).Msg(data.MsgStr)
 	}
 }
