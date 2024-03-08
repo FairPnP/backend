@@ -8,6 +8,7 @@ import (
 	"stripe-service/apperror"
 	"stripe-service/auth"
 	"stripe-service/postgres/accountdb"
+	"stripe-service/utils"
 
 	"github.com/gin-gonic/gin"
 
@@ -49,6 +50,7 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 						FirstName: stripe.String("Kyle"),
 						LastName:  stripe.String("Smith"),
 					},
+					Metadata: utils.StripeMetadata(c),
 				}
 				acc, err := account.New(params)
 				if err != nil {
@@ -69,7 +71,10 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 		}
 
 		// Check if account is already verified
-		acc, err := account.GetByID(accountEntity.AccountID, nil)
+		acc, err := account.GetByID(
+			accountEntity.AccountID,
+			&stripe.AccountParams{Metadata: utils.StripeMetadata(c)},
+		)
 		if err != nil {
 			apperror.HandleStripeError(c, err)
 			return

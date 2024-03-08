@@ -48,6 +48,16 @@ func JWTAuthMiddleware(appState *app.AppState) gin.HandlerFunc {
 		// Token is valid. Attach claims to the context.
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			c.Set("claims", claims)
+
+			// get sub claim from token
+			sub, exists := claims["sub"]
+			if !exists {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing sub claim"})
+				c.Abort()
+				return
+			} else {
+				c.Set("userID", sub)
+			}
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
 			c.Abort()

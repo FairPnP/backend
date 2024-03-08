@@ -6,29 +6,18 @@ import (
 	"stripe-service/apperror"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
 func GetUserId(c *gin.Context) (uuid.UUID, error) {
-	claims, exists := c.Get("claims")
+	userID, exists := c.Get("userID")
 	if !exists {
-		return uuid.Nil, apperror.New(http.StatusUnauthorized, "Missing claims")
-	}
-
-	mapClaims, ok := claims.(jwt.MapClaims)
-	if !ok {
-		return uuid.Nil, apperror.New(http.StatusUnauthorized, "Invalid claims type")
-	}
-
-	userID, exists := mapClaims["sub"]
-	if !exists {
-		return uuid.Nil, apperror.New(http.StatusUnauthorized, "Missing user ID claim")
+		return uuid.Nil, apperror.New(http.StatusUnauthorized, "Missing user ID")
 	}
 
 	userIDStr, ok := userID.(string)
 	if !ok {
-		return uuid.Nil, apperror.New(http.StatusUnauthorized, "Invalid user ID claim type")
+		return uuid.Nil, apperror.New(http.StatusUnauthorized, "Invalid user ID")
 	}
 
 	uid, err := uuid.Parse(userIDStr)

@@ -6,6 +6,7 @@ import (
 	"stripe-service/apperror"
 	"stripe-service/auth"
 	"stripe-service/postgres/customerdb"
+	"stripe-service/utils"
 
 	"github.com/gin-gonic/gin"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -48,6 +49,7 @@ func PostIntent(appState *app.AppState) gin.HandlerFunc {
 				stripeCustomer, err := customer.New(
 					&stripe.CustomerParams{
 						Description: stripe.String("Customer for user " + userId.String()),
+						Metadata:    utils.StripeMetadata(c),
 					},
 				)
 				if err != nil {
@@ -91,6 +93,7 @@ func PostIntent(appState *app.AppState) gin.HandlerFunc {
 				Amount:        stripe.Int64(req.Amount),
 				Currency:      stripe.String(string(stripe.CurrencyCAD)),
 				TransferGroup: stripe.String(transferGroup),
+				Metadata:      utils.StripeMetadata(c),
 			},
 		)
 		if err != nil {
