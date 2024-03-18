@@ -10,6 +10,8 @@ import (
 	"stripe-service/postgres/accountdb"
 	"stripe-service/utils"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/stripe/stripe-go/v76"
@@ -29,6 +31,8 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 			c.Error(err)
 			return
 		}
+
+		log.Debug().Str("user_id", userId.String()).Msg("Fetching dashboard link")
 
 		// Check if account already exists
 		accountEntity, err := accountdb.Get(appState.DB, userId)
@@ -70,15 +74,19 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 			}
 		}
 
+		log.Debug().Str("account_id", accountEntity.AccountID).Msg("Account found")
+
 		// Check if account is already verified
 		acc, err := account.GetByID(
 			accountEntity.AccountID,
-			&stripe.AccountParams{Metadata: utils.StripeMetadata(c)},
+			&stripe.AccountParams{},
 		)
 		if err != nil {
 			apperror.HandleStripeError(c, err)
 			return
 		}
+
+		log.Debug().Bool("details_submitted", acc.DetailsSubmitted).Msg("Account details submitted")
 
 		var link string
 		if acc.DetailsSubmitted {
@@ -110,6 +118,8 @@ func Dashboard(appState *app.AppState) gin.HandlerFunc {
 			}
 			link = accLink.URL
 		}
+
+		log.Debug().Str("link", link).Msg("Dashboard link created")
 
 		c.JSON(http.StatusOK, DashboardResponse{Link: link})
 	}

@@ -55,8 +55,15 @@ func Logger() gin.HandlerFunc {
 		if msg == "" {
 			msg = "Request"
 		}
-		requestID, _ := c.Get("requestID")
-		userID, _ := c.Get("userID")
+		requestID, exists := c.Get("requestID")
+		if !exists {
+			requestID = ""
+		}
+		userID, exists := c.Get("userID")
+		if !exists {
+			userID = ""
+		}
+
 		cData := &ginHands{
 			Path:       path,
 			Latency:    time.Since(t),

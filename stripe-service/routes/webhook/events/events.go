@@ -43,8 +43,11 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 	// track whether the event was processed successfully
 	success := false
 
+	log.Debug().Str("event_type", string(event.Type)).Msg("Processing event 1")
+
 	// update status based on the result of the processing
 	defer func() {
+		log.Debug().Str("event_type", string(event.Type)).Bool("success", success).Msg("Processing event")
 		if success {
 			// set status to processed
 			err := eventdb.UpdateStatus(appState.DB, event.ID, eventdb.StatusProcessed)
@@ -66,6 +69,8 @@ func processEvent(appState *app.AppState, event stripe.Event) error {
 		log.Error().Err(err).Msg("Error setting event as processing")
 		return err
 	}
+
+	log.Debug().Str("event_type", string(event.Type)).Msg("Processing event 2")
 
 	switch event.Type {
 	case "account.updated":
