@@ -2,7 +2,11 @@ use crate::{
     api::validation::validate_req_data,
     auth::user::get_user_id,
     error::ServiceError,
-    services::postgres::{reservations::ReservationDb, spaces::SpaceDb, DbPool},
+    services::postgres::{
+        reservations::{entities::ReservationStatus, ReservationDb},
+        spaces::SpaceDb,
+        DbPool,
+    },
     utils::hashids::{decode_id, decode_id_option, encode_id},
 };
 use actix_web::{get, web, HttpResponse};
@@ -70,7 +74,15 @@ pub async fn list_reservations(
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
     let offset_id = decode_id_option(&query.offset_id)?;
     let space_id = decode_id_option(&query.space_id)?;
-    let reservations = ReservationDb::list(&pool, offset_id, limit, user, space_id).await?;
+    let reservations = ReservationDb::list(
+        &pool,
+        offset_id,
+        limit,
+        user,
+        space_id,
+        Some(ReservationStatus::Confirmed),
+    )
+    .await?;
     let next_offset_id = if reservations.len() as i32 == limit {
         reservations.last().map(|b| encode_id(b.id))
     } else {

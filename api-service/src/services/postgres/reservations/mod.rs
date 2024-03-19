@@ -1,7 +1,7 @@
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
-use self::entities::Reservation;
+use self::entities::{Reservation, ReservationStatus};
 
 use super::DbPool;
 
@@ -21,12 +21,13 @@ impl ReservationDb {
         end_date: NaiveDateTime,
     ) -> Result<Reservation, sqlx::Error> {
         let reservation = sqlx::query_as::<_, Reservation>(
-            "INSERT INTO reservations (user_id, space_id, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING *",
+            "INSERT INTO reservations (user_id, space_id, start_date, end_date, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         )
         .bind(user_id)
         .bind(space_id)
         .bind(start_date)
         .bind(end_date)
+        .bind("pending")
         .fetch_one(pool)
         .await?;
 
@@ -52,6 +53,7 @@ impl ReservationDb {
         limit: i32,
         user_id: Option<Uuid>,
         space_id: Option<i32>,
+        status: Option<ReservationStatus>,
     ) -> Result<Vec<Reservation>, sqlx::Error> {
         let mut query = String::from("SELECT * FROM reservations");
 
@@ -64,6 +66,9 @@ impl ReservationDb {
         }
         if let Some(oid) = offset_id {
             conditions.push(format!("id > {}", oid));
+        }
+        if let Some(ref status) = status {
+            conditions.push(format!("status = '{}'", status));
         }
 
         if !conditions.is_empty() {
@@ -113,12 +118,14 @@ impl ReservationDb {
         reservation_id: i32,
         start_date: Option<NaiveDateTime>,
         end_date: Option<NaiveDateTime>,
+        status: Option<ReservationStatus>,
     ) -> Result<Reservation, sqlx::Error> {
         let reservation = sqlx::query_as::<_, Reservation>(
-            "UPDATE reservations SET start_date = COALESCE($1, start_date), end_date = COALESCE($2, end_date) WHERE id = $3 AND user_id = $4 RETURNING *",
+            "UPDATE reservations SET start_date = COALESCE($1, start_date), end_date = COALESCE($2, end_date) status = COALESCE($3, status) WHERE id = $4 AND user_id = $5 RETURNING *",
         )
         .bind(start_date)
         .bind(end_date)
+        .bind(status)
         .bind(reservation_id)
         .bind(user_id)
         .fetch_one(pool)

@@ -46,6 +46,7 @@ pub async fn update_reservation(
         reservation_id,
         data.start_date,
         data.end_date,
+        None,
     )
     .await?;
     Ok(HttpResponse::Ok().json(UpdateReservationResponse {
