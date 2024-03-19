@@ -16,6 +16,7 @@
 use std::env;
 
 use gateway::MyGateway;
+use routes::get_route_map;
 use structopt::StructOpt;
 
 use pingora::server::configuration::Opt;
@@ -23,6 +24,8 @@ use pingora::server::Server;
 
 mod auth;
 mod gateway;
+mod route_map;
+mod routes;
 
 fn main() {
     env_logger::init();
@@ -44,7 +47,7 @@ fn main() {
     let port = env::var("PORT").expect("PORT is not set");
     let mut my_proxy = pingora::proxy::http_proxy_service(
         &my_server.configuration,
-        MyGateway::new(server_name, jwt_validator),
+        MyGateway::new(server_name, jwt_validator, get_route_map()),
     );
     my_proxy.add_tcp(&format!("0.0.0.0:{}", port));
     my_server.add_service(my_proxy);

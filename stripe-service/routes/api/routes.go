@@ -13,7 +13,7 @@ import (
 // SetupRoutes configures the API routes
 func SetupRoutes(router *gin.Engine, appState *app.AppState) {
 	apiGroup := router.Group("/api")
-	apiGroup.Use(auth.JWTAuthMiddleware(appState))
+	apiGroup.Use(auth.AuthMiddleware(appState))
 	{
 		accounts.SetupRoutes(apiGroup, appState)
 		customers.SetupRoutes(apiGroup, appState)

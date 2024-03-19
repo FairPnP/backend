@@ -14,8 +14,8 @@ services:
       AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
       AUTH_JWKS_URI: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
       RUST_LOG: info
-      API_URI: api:3000
-      STRIPE_URI: stripe:3001
+      API_URL: api:3000
+      STRIPE_URL: stripe:3001
     volumes:
       - ./gateway/src:/usr/src/gateway/src
       - cargo_registry:/usr/local/cargo/registry

@@ -1,9 +1,8 @@
-use std::env;
-
 use alcoholic_jwt::ValidJWT;
 use async_trait::async_trait;
 use log::info;
 
+use nanoid::nanoid;
 use pingora::upstreams::peer::HttpPeer;
 
 use pingora::Result;
@@ -12,24 +11,23 @@ use pingora::http::{RequestHeader, ResponseHeader};
 use pingora::proxy::{ProxyHttp, Session};
 
 use crate::auth::{jwt::validate_token, state::JwtValidatorState};
+use crate::route_map::RouteMap;
 
 pub struct MyGateway {
     name: String,
     req_metric: prometheus::IntCounter,
     jwt_validator: JwtValidatorState,
-    api_uri: String,
-    stripe_uri: String,
+    route_map: RouteMap,
 }
 
 impl MyGateway {
-    pub fn new(name: String, jwt_validator: JwtValidatorState) -> Self {
+    pub fn new(name: String, jwt_validator: JwtValidatorState, route_map: RouteMap) -> Self {
         Self {
             name,
             req_metric: prometheus::register_int_counter!("reg_counter", "Number of requests")
                 .unwrap(),
             jwt_validator,
-            api_uri: env::var("API_URI").expect("API_URI is not set"),
-            stripe_uri: env::var("STRIPE_URI").expect("STRIPE_URI is not set"),
+            route_map,
         }
     }
 
@@ -68,19 +66,17 @@ impl ProxyHttp for MyGateway {
     async fn request_filter(&self, session: &mut Session, _ctx: &mut Self::CTX) -> Result<bool> {
         let jwt = Self::check_login(self, session.req_header()).await;
         if let Some(jwt) = jwt {
-            if session
+            let _ = session
                 .req_header_mut()
-                .insert_header("X-Auth-User", jwt.claims["sub"].to_string())
-                .is_ok()
-            {
-                // false: continue to next filter
-                return Ok(false);
-            }
+                .insert_header("X-Auth-User", jwt.claims["sub"].to_string());
+        } else {
+            let _ = session.respond_error(403).await;
+            // true: early return as the response is already written
+            return Ok(true);
         }
 
-        let _ = session.respond_error(403).await;
-        // true: early return as the response is already written
-        return Ok(true);
+        // false: continue to next filter
+        return Ok(false);
     }
 
     async fn upstream_peer(
@@ -88,10 +84,26 @@ impl ProxyHttp for MyGateway {
         session: &mut Session,
         _ctx: &mut Self::CTX,
     ) -> Result<Box<HttpPeer>> {
-        info!("path: {path}", path = session.req_header().uri.path());
+        let request_id = nanoid!();
+        info!(
+            "path: {path}, request_id: {request_id}",
+            path = session.req_header().uri.path(),
+            request_id = request_id
+        );
 
-        let peer = Box::new(HttpPeer::new(self.api_uri.clone(), false, String::new()));
-        Ok(peer)
+        let route = self.route_map.find_route(session.req_header().uri.path());
+        if let Some((route, _)) = route {
+            // add request id to the header
+            session
+                .req_header_mut()
+                .insert_header("X-Request-ID", request_id)?;
+
+            let peer = Box::new(HttpPeer::new(route.base_url.clone(), false, String::new()));
+            return Ok(peer);
+        }
+
+        // 404
+        Err(pingora::Error::new(pingora::ErrorType::HTTPStatus(404)))
     }
 
     async fn response_filter(
