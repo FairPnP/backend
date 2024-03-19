@@ -1,11 +1,31 @@
 version: "3.8"
 services:
+  gateway:
+    build:
+      context: ./gateway
+      target: local
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+    environment:
+      SERVER_NAME: fairpnp-local
+      PORT: 3000
+      PROMETHEUS_PORT: 4000
+      AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
+      AUTH_JWKS_URI: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
+      RUST_LOG: info
+      API_URI: api:3000
+      STRIPE_URI: stripe:3001
+    volumes:
+      - ./gateway/src:/usr/src/gateway/src
+      - cargo_registry:/usr/local/cargo/registry
+      - cargo_git:/usr/local/cargo/git
   api:
     build:
       context: ./api-service
       target: local
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
       BASE_URL: http://192.168.86.40:3000
       DATABASE_URL: postgres://postgres:password@db:5432/api
