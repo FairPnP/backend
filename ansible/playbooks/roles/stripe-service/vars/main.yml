@@ -1,6 +1,0 @@
-git_repo_url: "git@github.com:FairPnP/backend.git"
-git_repo_branch: master
-git_repo_path: "{{ ansible_env.HOME }}/fairpnp"
-project_path: "{{ git_repo_path }}/stripe-service"
-stripe_return_url: "fairpnp://stripe/return"
-stripe_refresh_url: "fairpnp://stripe/refresh"

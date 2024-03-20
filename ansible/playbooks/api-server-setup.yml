@@ -14,14 +14,14 @@
     - rust
     - postgres
     - cloudflared
-    - api-service
+    - cmake
   remote_user: ec2-user
   tasks:
     - name: Template for buildserver motd
       ansible.builtin.template:
-        src: 'templates/etc/motd.j2'
-        dest: '/etc/motd'
+        src: "templates/etc/motd.j2"
+        dest: "/etc/motd"
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
       become: true

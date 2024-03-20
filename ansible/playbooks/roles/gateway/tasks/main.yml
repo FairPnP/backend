@@ -2,13 +2,13 @@
 - name: Build project using Cargo
   ansible.builtin.command: cargo build --release
   args:
-    chdir: "{{ ansible_env.HOME }}/fairpnp/api-service"
+    chdir: "{{ project_path }}"
   become: false
 
-- name: Configure api-service systemd service
+- name: Configure gateway systemd service
   ansible.builtin.template:
-    src: "api-service.service.j2"
-    dest: "/etc/systemd/system/api-service.service"
+    src: "gateway.service.j2"
+    dest: "/etc/systemd/system/gateway.service"
     mode: "0644"
   become: true
 
@@ -17,23 +17,23 @@
     daemon_reload: true
   become: true
 
-- name: Stop api-service if it's running
+- name: Stop gateway if it's running
   ansible.builtin.systemd:
-    name: api-service
+    name: "{{ bin_filename }}"
     state: stopped
   become: true
 
 - name: Move the generated binary to the systemd service location
   ansible.builtin.copy:
-    src: "{{ ansible_env.HOME }}/fairpnp/api-service/target/release/api-service"
-    dest: "/usr/local/bin/api-service"
+    src: "{{ project_path }}/target/release/{{ bin_filename }}"
+    dest: "/usr/local/bin/{{ bin_filename }}"
     remote_src: true
     mode: "0755"
   become: true
 
-- name: Start api-service
+- name: Start gateway
   ansible.builtin.systemd:
-    name: api-service
+    name: "{{ bin_filename }}"
     state: started
     enabled: true
   become: true

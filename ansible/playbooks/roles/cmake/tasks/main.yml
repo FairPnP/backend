@@ -1,0 +1,15 @@
+- name: Check if cmake is installed
+  ansible.builtin.command: cmake --version
+  register: cmake_version
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  become: false
+
+- name: install cmake
+  ansible.builtin.yum:
+    name: cmake
+    state: present
+  when: cmake_version.rc != 0
+  become: true

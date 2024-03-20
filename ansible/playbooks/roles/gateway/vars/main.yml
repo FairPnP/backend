@@ -1,0 +1,10 @@
+project_path: "{{ git_repo_path }}/gateway"
+bin_filename: "gateway"
+server_name: fairpnp
+server_port: 3000
+prometheus_port: 4000
+auth_issuer: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
+auth_jwks_uri: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
+rust_log_level: info
+api_url: localhost:3500
+stripe_url: localhost:3501

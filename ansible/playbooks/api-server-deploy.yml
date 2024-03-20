@@ -10,5 +10,7 @@
     - ../environments/{{ ENV }}/group_vars/all/env_vars.yml
     - ../environments/{{ ENV }}/group_vars/all/env_vault.yml
   roles:
+    - git-repo
     - api-service
+    - gateway
   remote_user: ec2-user

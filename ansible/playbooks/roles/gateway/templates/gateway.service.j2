@@ -1,0 +1,23 @@
+[Unit]
+Description=API Gateway
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/{{ bin_filename }}
+Restart=on-failure
+User=ec2-user
+Group=ec2-user
+Environment="SERVER_NAME={{ server_name }}"
+Environment="PORT={{ server_port }}"
+Environment="PROMETHEUS_PORT={{ prometheus_port }}"
+Environment="AUTH_ISSUER={{ auth_issuer }}"
+Environment="AUTH_JWKS_URI={{ auth_jwks_uri }}"
+Environment="RUST_LOG={{ rust_log_level }}"
+Environment="API_URL={{ api_url }}"
+Environment="STRIPE_URL={{ stripe_url }}"
+StandardOutput=append:{{ log_dir }}/{{ bin_filename }}.log
+StandardError=append:{{ log_dir }}/{{ bin_filename }}.error.log
+
+[Install]
+WantedBy=multi-user.target

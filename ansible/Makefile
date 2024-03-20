@@ -12,12 +12,12 @@ decrypt:
 api-server-setup:
 	$(call check_defined, ENV, Please set the ENV to plan for.)
 	@echo "Environment is: $(value ENV)"
-	@ansible-playbook --diff -i environments/$(value ENV) --extra-vars "ENV=$(value ENV)" playbooks/api-server-setup.yml -u ec2-user
+	@ansible-playbook --diff -i environments/$(value ENV) --extra-vars "ENV=$(value ENV)" --extra-vars "@environments/cross_env_vars.yml" playbooks/api-server-setup.yml -u ec2-user
 
 api-server-deploy:
 	$(call check_defined, ENV, Please set the ENV to plan for.)
 	@echo "Environment is: $(value ENV)"
-	@ansible-playbook --diff -i environments/$(value ENV) --extra-vars "ENV=$(value ENV)" playbooks/api-server-deploy.yml -u ec2-user
+	@ansible-playbook --diff -i environments/$(value ENV) --extra-vars "ENV=$(value ENV)" --extra-vars "@environments/cross_env_vars.yml" playbooks/api-server-deploy.yml -u ec2-user
 
 lint-all:
 	@ansible-lint playbooks/api-server-setup.yml
