@@ -16,6 +16,7 @@ Environment="AUTH_JWKS_URI={{ auth_jwks_uri }}"
 Environment="RUST_LOG={{ rust_log_level }}"
 Environment="API_URL={{ api_url }}"
 Environment="STRIPE_URL={{ stripe_url }}"
+Environment="STRIPE_WEBHOOK_URL={{ stripe_webhook_url }}"
 StandardOutput=append:{{ log_dir }}/{{ bin_filename }}.log
 StandardError=append:{{ log_dir }}/{{ bin_filename }}.error.log
 

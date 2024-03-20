@@ -8,3 +8,4 @@ auth_jwks_uri: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.
 rust_log_level: info
 api_url: localhost:3500
 stripe_url: localhost:3501
+stripe_webhook_url: localhost:3001
