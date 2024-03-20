@@ -15,6 +15,7 @@
     - postgres
     - cloudflared
     - cmake
+    - golang
   remote_user: ec2-user
   tasks:
     - name: Template for buildserver motd
