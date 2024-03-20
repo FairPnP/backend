@@ -71,9 +71,22 @@ impl ProxyHttp for MyGateway {
 
         let jwt = Self::check_login(self, session.req_header()).await;
         if let Some(jwt) = jwt {
-            let _ = session
-                .req_header_mut()
-                .insert_header("X-Auth-User", jwt.claims["sub"].to_string());
+            let sub = match jwt.claims["sub"].as_str() {
+                Some(sub) => sub,
+                None => {
+                    let _ = session.respond_error(401).await;
+                    // true: early return as the response is already written
+                    return Ok(true);
+                }
+            };
+            match session.req_header_mut().insert_header("X-Auth-User", sub) {
+                Ok(_) => {}
+                Err(_) => {
+                    let _ = session.respond_error(500).await;
+                    // true: early return as the response is already written
+                    return Ok(true);
+                }
+            }
         } else {
             let _ = session.respond_error(401).await;
             // true: early return as the response is already written
