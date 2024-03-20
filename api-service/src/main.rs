@@ -31,8 +31,10 @@ async fn main() -> std::io::Result<()> {
     let google_api_key = std::env::var("GOOGLE_API_KEY").expect("Missing GOOGLE_API_KEY in env");
     let google_maps_client = GoogleMapsClient::try_new(&google_api_key).unwrap();
 
-    let server_bind_address =
-        std::env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3000".to_string());
+    let server_bind_address = format!(
+        "0.0.0.0:{port}",
+        port = std::env::var("PORT").expect("Missing PORT in env")
+    );
 
     HttpServer::new(move || {
         App::new()
