@@ -5,10 +5,16 @@ pub fn get_route_map() -> RouteMap {
 
     let api_url = std::env::var("API_URL").expect("API_URL is not set");
     let stripe_url = std::env::var("STRIPE_URL").expect("STRIPE_URL is not set");
+    let stripe_webhook_url =
+        std::env::var("STRIPE_WEBHOOK_URL").expect("STRIPE_WEBHOOK_URL is not set");
 
     // health
     // TODO: include all services
     route_map.add_route(&api_url, "/health", vec!["GET"]);
+
+    // stripe webhook
+    // TODO: move out of gateway
+    route_map.add_route(&stripe_webhook_url, "/webhooks", vec!["POST"]);
 
     // availability
     route_map.add_route(&api_url, "/api/availability/v1", vec!["GET", "POST"]);

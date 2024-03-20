@@ -16,6 +16,7 @@ services:
       RUST_LOG: info
       API_URL: api:3500
       STRIPE_URL: stripe:3501
+      STRIPE_WEBHOOK_URL: webhooks:3001
     volumes:
       - ./gateway/src:/usr/src/gateway/src
       - cargo_registry:/usr/local/cargo/registry

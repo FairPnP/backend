@@ -16,5 +16,5 @@ func SetupRoutes(router *gin.Engine, appState *app.AppState) {
 
 	health.SetupRoutes(router, appState)
 
-	router.POST("/webhook", webhook.HandleWebhook(appState))
+	router.POST("/webhooks", webhook.HandleWebhook(appState))
 }

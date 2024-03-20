@@ -64,7 +64,8 @@ impl ProxyHttp for MyGateway {
     fn new_ctx(&self) -> Self::CTX {}
 
     async fn request_filter(&self, session: &mut Session, _ctx: &mut Self::CTX) -> Result<bool> {
-        if session.req_header().uri.path() == "/health" {
+        let path = session.req_header().uri.path();
+        if path == "/health" || path == "/webhooks" {
             return Ok(false);
         }
 
