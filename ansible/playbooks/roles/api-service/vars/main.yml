@@ -3,3 +3,4 @@ migration_path: "{{ project_path }}/migrations"
 s3_bucket_user_content: "fairpnp-dev-user-content"
 aws_region: "us-east-2"
 server_port: 3500
+hashid_salt: 3OwCZuEjtf5XGOQ80fz3CNZ3

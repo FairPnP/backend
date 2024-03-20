@@ -86,7 +86,8 @@ pub fn get_route_map() -> RouteMap {
     route_map.add_route(&api_url, "/api/user_notifs/v1/token", vec!["GET", "POST"]);
 
     // user profiles
-    route_map.add_route(&api_url, "/api/user_profiles/v1", vec!["GET", "PUT"]);
+    route_map.add_route(&api_url, "/api/user_profiles/v1", vec!["PUT"]);
+    route_map.add_route(&api_url, "/api/user_profiles/v1/{id}", vec!["GET"]);
     route_map.add_route(&api_url, "/api/user_profiles/v1/avatar", vec!["POST"]);
 
     // user reviews

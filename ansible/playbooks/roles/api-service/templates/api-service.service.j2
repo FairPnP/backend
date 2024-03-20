@@ -18,6 +18,7 @@ Environment="AWS_REGION={{ aws_region }}"
 Environment="AWS_ACCESS_KEY_ID={{ aws_access_key_id }}"
 Environment="AWS_SECRET_ACCESS_KEY={{ aws_secret_access_key }}"
 Environment="GOOGLE_API_KEY={{ google_web_api_key }}"
+Environment="HASHIDS_SALT={{ hashid_salt }}
 StandardOutput=append:{{ log_dir }}/api-service.log
 StandardError=append:{{ log_dir }}/api-service.error.log
 
