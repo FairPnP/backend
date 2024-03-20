@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan">
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Events">
+          <intProp name="HTTPSampler.concurrentPool">6</intProp>
+          <stringProp name="HTTPSampler.domain">api-dev.fairpnp.com</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+          <stringProp name="HTTPSampler.path">/api/events/v1</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Search">
+          <intProp name="HTTPSampler.concurrentPool">6</intProp>
+          <stringProp name="HTTPSampler.domain">api-dev.fairpnp.com</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
+          <stringProp name="HTTPSampler.path">/api/availability/v1/search</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&#xd;
+    &quot;start_date&quot;: &quot;2024-01-08T05:00:00&quot;,&#xd;
+    &quot;end_date&quot;: &quot;2024-01-10T05:00:00&quot;,&#xd;
+    &quot;latitude&quot;: &quot;43.442384&quot;,&#xd;
+    &quot;longitude&quot;: &quot;-80.51516&quot;,&#xd;
+    &quot;lat_delta&quot;: &quot;1&quot;,&#xd;
+    &quot;long_delta&quot;: &quot;1&quot;&#xd;
+}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+      </hashTree>
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+        <collectionProp name="HeaderManager.headers">
+          <elementProp name="" elementType="Header">
+            <stringProp name="Header.name">Content-Type</stringProp>
+            <stringProp name="Header.value">application/json</stringProp>
+          </elementProp>
+          <elementProp name="" elementType="Header">
+            <stringProp name="Header.name">Authorization</stringProp>
+            <stringProp name="Header.value">Bearer eyJraWQiOiIzc1l0ZFhQbW1GNXUrRysxOFJiWWkrYXdLWHhMc3RRc1g5R3p3TVpPT2tBPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjMDdiZDIwNC0yMDBkLTQ0MDMtOTZjOS00NDFmYWEwNzYyNTYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0yLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMl9yTEVIenJZOGciLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiIzdGxzYmp2cDZkb25jbTNwbnQ2OW5jZ2M5dCIsImV2ZW50X2lkIjoiMDZiNTE1MTMtOWJhOS00MzM2LTg2MmUtNDc3MjI4YmE5YmRhIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImF1dGhfdGltZSI6MTcwOTMzNjMwOSwiZXhwIjoxNzA5MzM5OTA5LCJpYXQiOjE3MDkzMzYzMDksImp0aSI6IjQ0ZTdiNzEzLTlmNzktNGNjMy04OTY3LWI4YmIzN2NkMmFmYyIsInVzZXJuYW1lIjoiYzA3YmQyMDQtMjAwZC00NDAzLTk2YzktNDQxZmFhMDc2MjU2In0.UtN39y6b912Jfj8YvO6ucoTVrwnQwESXn5aQnJgPuQQJ2JpHgMsYbFbYYCLfSe_6wSONkF6WARSAlbj4-0DoNN8-ea4IPYPCOeYD8RzJKZzOp7ceWygm2TGVH_Fil4-6qtzoSXt-Tw3phwxao2S_9EY8hOiw0fDsoQOEloRAxM8CyG0bJtAJSAjE3g2-Xt9dVot99u16l8-WWT_7ow8_dXeZo3ynXIw_4s9JYv3GdsKbLha0t4-_lDHuNr4Ls-Jln3Ij1rg8W55naI3k43cIU25wPnlItZfMIQ9EfaCvdq7FwfGovBYGYXAIXtBPkTETNAKCqxfvyTvidm4Dm6xx8w</stringProp>
+          </elementProp>
+        </collectionProp>
+      </HeaderManager>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
