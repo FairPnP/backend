@@ -1,0 +1,39 @@
+---
+- name: Build go project
+  ansible.builtin.command: go build -o {{ bin_filename }} .
+  args:
+    chdir: "{{ project_path }}"
+  become: false
+
+- name: Configure stripe-service systemd service
+  ansible.builtin.template:
+    src: "{{ bin_filename }}.service.j2"
+    dest: "/etc/systemd/system/{{ bin_filename }}.service"
+    mode: "0644"
+  become: true
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Stop stripe-service if it's running
+  ansible.builtin.systemd:
+    name: "{{ bin_filename }}"
+    state: stopped
+  become: true
+
+- name: Copy the generated binary to the systemd service location
+  ansible.builtin.copy:
+    src: "{{ project_path }}/{{ bin_filename }}"
+    dest: "/usr/local/bin/{{ bin_filename }}"
+    remote_src: true
+    mode: "0755"
+  become: true
+
+- name: Start stripe-service
+  ansible.builtin.systemd:
+    name: "{{ bin_filename }}"
+    state: started
+    enabled: true
+  become: true

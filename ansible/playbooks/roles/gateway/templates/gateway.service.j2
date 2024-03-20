@@ -8,7 +8,7 @@ ExecStart=/usr/local/bin/{{ bin_filename }}
 Restart=on-failure
 User=ec2-user
 Group=ec2-user
-Environment="SERVER_NAME={{ server_name }}"
+Environment="SERVER_NAME={{ api_server_name }}"
 Environment="PORT={{ server_port }}"
 Environment="PROMETHEUS_PORT={{ prometheus_port }}"
 Environment="AUTH_ISSUER={{ auth_issuer }}"

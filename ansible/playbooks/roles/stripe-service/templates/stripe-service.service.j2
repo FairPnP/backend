@@ -1,0 +1,23 @@
+[Unit]
+Description=Stripe Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/{{ bin_filename }}
+Restart=on-failure
+User=ec2-user
+Group=ec2-user
+Environment="BASE_URL={{ api_server_name }}"
+Environment="GIN_MODE={{ gin_mode }}"
+Environment="WEB_SERVER_PORT={{ server_port }}"
+Environment="DATABASE_URL={{ postgres_db_url }}"
+Environment="REDIS_URL={{ redis_url }}"
+Environment="STRIPE_SECRET_KEY={{ stripe_secret_key }}"
+Environment="STRIPE_RETURN_URL={{ stripe_return_url }}"
+Environment="STRIPE_REFRESH_URL={{ stripe_refresh_url }}"
+StandardOutput=append:{{ log_dir }}/{{ bin_filename }}.log
+StandardError=append:{{ log_dir }}/{{ bin_filename }}.error.log
+
+[Install]
+WantedBy=multi-user.target

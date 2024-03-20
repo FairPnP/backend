@@ -13,4 +13,5 @@
     - git-repo
     - api-service
     - gateway
+    - stripe-service
   remote_user: ec2-user

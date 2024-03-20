@@ -1,0 +1,6 @@
+project_path: "{{ git_repo_path }}/stripe-service"
+bin_filename: "stripe-service"
+gin_mode: debug
+server_port: 3501
+stripe_return_url: fairpnp://stripe/return
+stripe_refresh_url: fairpnp://stripe/refresh
