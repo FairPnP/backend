@@ -5,7 +5,6 @@ mod buildings;
 mod dev;
 mod reservations;
 mod spaces;
-mod stripe;
 mod users;
 mod validation;
 
@@ -23,7 +22,6 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .configure(users::notifs::config)
             .configure(reservations::config)
             .configure(availability::config)
-            .configure(stripe::config)
             .configure(dev::config),
     );
 }

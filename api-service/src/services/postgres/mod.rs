@@ -13,15 +13,12 @@ pub mod buildings;
 pub mod reservation_chat_messages;
 pub mod reservations;
 pub mod spaces;
-pub mod stripe_accounts;
-pub mod stripe_customers;
 pub mod users;
 
 pub async fn establish_connection() -> DbPool {
     dotenv::dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    
 
     // Run migrations
     // let mut conn = pool.get().expect("Failed to get DB connection from pool");

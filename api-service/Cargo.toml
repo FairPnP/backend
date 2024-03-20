@@ -8,8 +8,6 @@ edition = "2021"
 [dependencies]
 actix-cors = "0.7.0"
 actix-web = "4.4"
-actix-web-httpauth = "0.8"
-alcoholic_jwt = "4091.0.0"
 bb8 = "0.8.3"
 bb8-redis = "0.14.0"
 bigdecimal = { version = "0.3", features = ["serde"] }
@@ -26,7 +24,6 @@ google_maps = { version = "3.4", default-features = false, features = [
 harsh = "0.2.2"
 lazy_static = "1.4.0"
 redis = { version = "0.24.0", features = ["tokio-comp"] }
-reqwest = { version = "0.11", features = ["json"] }
 rusoto_core = "0.48"
 rusoto_s3 = "0.48"
 serde = { version = "1.0", features = ["derive"] }

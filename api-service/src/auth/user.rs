@@ -1,26 +1,24 @@
-use actix_web::{HttpMessage, HttpRequest};
-use serde::{Deserialize, Serialize};
+use actix_web::HttpRequest;
 use uuid::Uuid;
 
 use crate::error::ServiceError;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct User {
-    pub id: Uuid,
-    pub client_id: String,
-    pub username: String,
-}
-
-// pub fn get_user(req: &HttpRequest) -> Result<User, ServiceError> {
-//     match req.extensions().get::<User>() {
-//         Some(user) => Ok(user.clone()),
-//         None => Err(ServiceError::Unauthorized),
-//     }
-// }
-
 pub fn get_user_id(req: &HttpRequest) -> Result<Uuid, ServiceError> {
-    match req.extensions().get::<User>() {
-        Some(user) => Ok(user.id),
+    match req.headers().get("X-Auth-User") {
+        Some(user_id) => {
+            let user_id = match user_id.to_str() {
+                Ok(user_id) => user_id,
+                Err(_) => return Err(ServiceError::Unauthorized),
+            };
+            let user_id = match Uuid::parse_str(user_id) {
+                Ok(user_id) => user_id,
+                Err(_) => {
+                    return Err(ServiceError::Unauthorized);
+                }
+            };
+
+            Ok(user_id)
+        }
         None => Err(ServiceError::Unauthorized),
     }
 }
