@@ -64,13 +64,17 @@ impl ProxyHttp for MyGateway {
     fn new_ctx(&self) -> Self::CTX {}
 
     async fn request_filter(&self, session: &mut Session, _ctx: &mut Self::CTX) -> Result<bool> {
+        if session.req_header().uri.path() == "/health" {
+            return Ok(false);
+        }
+
         let jwt = Self::check_login(self, session.req_header()).await;
         if let Some(jwt) = jwt {
             let _ = session
                 .req_header_mut()
                 .insert_header("X-Auth-User", jwt.claims["sub"].to_string());
         } else {
-            let _ = session.respond_error(403).await;
+            let _ = session.respond_error(401).await;
             // true: early return as the response is already written
             return Ok(true);
         }
