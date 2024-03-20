@@ -6,6 +6,10 @@ pub fn get_route_map() -> RouteMap {
     let api_url = std::env::var("API_URL").expect("API_URL is not set");
     let stripe_url = std::env::var("STRIPE_URL").expect("STRIPE_URL is not set");
 
+    // health
+    // TODO: include all services
+    route_map.add_route(&api_url, "/health", vec!["GET"]);
+
     // availability
     route_map.add_route(&api_url, "/api/availability/v1", vec!["GET", "POST"]);
     route_map.add_route(&api_url, "/api/availability/v1/search", vec!["POST"]);
