@@ -13,7 +13,7 @@ services:
       PROMETHEUS_PORT: 4000
       AUTH_ISSUER: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g
       AUTH_JWKS_URI: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_rLEHzrY8g/.well-known/jwks.json
-      RUST_LOG: info
+      RUST_LOG: error
       API_URL: api:3500
       STRIPE_URL: stripe:3501
       STRIPE_WEBHOOK_URL: webhooks:3001

@@ -1,10 +1,12 @@
+CREATE TYPE reservation_status AS ENUM ('pending', 'confirmed', 'failed', 'cancelled', 'timeout');
+
 CREATE TABLE reservations (
     id SERIAL PRIMARY KEY,
     user_id UUID NOT NULL,
     space_id integer NOT NULL,
     start_date timestamp NOT NULL,
     end_date timestamp NOT NULL CHECK (end_date > start_date),
-    status text NOT NULL CHECK (status IN ('pending', 'confirmed', 'failed', 'cancelled', 'timeout')),
+    status reservation_status NOT NULL DEFAULT 'pending',
     created_at timestamp NOT NULL DEFAULT NOW(),
     last_modified timestamp NOT NULL DEFAULT NOW()
 );

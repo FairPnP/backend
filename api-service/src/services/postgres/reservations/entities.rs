@@ -8,7 +8,7 @@ use uuid::Uuid;
 // DB Entity
 
 #[derive(Debug, sqlx::Type, Serialize, Deserialize)]
-#[sqlx(rename_all = "lowercase")]
+#[sqlx(type_name = "reservation_status", rename_all = "lowercase")]
 pub enum ReservationStatus {
     Pending,
     Confirmed,

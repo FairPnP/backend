@@ -25,6 +25,10 @@ pub fn get_route_map() -> RouteMap {
         vec!["GET", "PUT", "DELETE"],
     );
 
+    // buildings
+    route_map.add_route(&api_url, "/api/buildings/v1", vec!["GET"]);
+    route_map.add_route(&api_url, "/api/buildings/v1/{id}", vec!["GET"]);
+
     // chat
     route_map.add_route(&api_url, "/api/chat/v1/host", vec!["GET"]);
     route_map.add_route(&api_url, "/api/chat/v1/guest", vec!["GET"]);
@@ -52,8 +56,13 @@ pub fn get_route_map() -> RouteMap {
     );
 
     // space images
-    route_map.add_route(&api_url, "/api/space_images/v1", vec!["GET", "POST"]);
-    route_map.add_route(&api_url, "/api/space_images/v1/complete", vec!["PUT"]);
+    route_map.add_route(&api_url, "/api/space_images/v1", vec!["GET"]);
+    route_map.add_route(&api_url, "/api/space_images/v1/images", vec!["POST"]);
+    route_map.add_route(
+        &api_url,
+        "/api/space_images/v1/images/complete",
+        vec!["PUT"],
+    );
     route_map.add_route(&api_url, "/api/space_images/v1/{id}", vec!["GET", "DELETE"]);
 
     // space reviews

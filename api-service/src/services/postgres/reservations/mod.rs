@@ -27,7 +27,7 @@ impl ReservationDb {
         .bind(space_id)
         .bind(start_date)
         .bind(end_date)
-        .bind("pending")
+        .bind(ReservationStatus::Pending)
         .fetch_one(pool)
         .await?;
 
