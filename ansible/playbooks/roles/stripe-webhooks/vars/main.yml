@@ -1,0 +1,4 @@
+project_path: "{{ git_repo_path }}/stripe-webhooks"
+bin_filename: "stripe-webhooks"
+gin_mode: debug
+server_port: 3001
