@@ -19,11 +19,6 @@ pub struct UpdateSpaceRequest {
     #[validate(length(min = 1, max = 255))]
     pub name: Option<String>,
     pub description: Option<String>,
-    pub max_vehicle_size: Option<String>,
-    pub coverage: Option<String>,
-    pub height_clearance_cm: Option<Option<i32>>, // Double Option to allow setting the field to NULL
-    pub access_restrictions: Option<String>,
-    pub parking_instructions: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -50,12 +45,7 @@ pub async fn update_space(
         space_id,
         user_id,
         data.name.to_owned(),
-        data.description,
-        data.max_vehicle_size,
-        data.coverage,
-        data.height_clearance_cm,
-        data.access_restrictions,
-        data.parking_instructions,
+        data.description.to_owned(),
     )
     .await?;
 

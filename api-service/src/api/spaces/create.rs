@@ -21,14 +21,8 @@ pub struct CreateSpaceRequest {
     pub place_id: String,
     #[validate(length(min = 1, max = 255))]
     pub name: String,
-    pub description: Option<String>,
     #[validate(length(min = 1))]
-    pub max_vehicle_size: String,
-    #[validate(length(min = 1))]
-    pub coverage: String,
-    pub height_clearance_cm: Option<i32>,
-    pub access_restrictions: Option<String>,
-    pub parking_instructions: Option<String>,
+    pub description: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -117,11 +111,6 @@ pub async fn create_space(
         building.id,
         data.name.to_owned(),
         data.description,
-        data.max_vehicle_size,
-        data.coverage,
-        data.height_clearance_cm,
-        data.access_restrictions,
-        data.parking_instructions,
     )
     .await?;
     Ok(HttpResponse::Created().json(CreateSpaceResponse {

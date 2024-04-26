@@ -1,7 +1,10 @@
 use chrono::NaiveDateTime;
 use serde::Serialize;
 
-use crate::{services::postgres::reservations::entities::Reservation, utils::hashids::encode_id};
+use crate::{
+    services::postgres::reservations::entities::{Reservation, ReservationStatus},
+    utils::hashids::encode_id,
+};
 
 #[derive(Debug, Serialize)]
 pub struct PublicReservation {
@@ -9,6 +12,7 @@ pub struct PublicReservation {
     pub space_id: String,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
+    pub status: ReservationStatus,
 }
 
 impl From<Reservation> for PublicReservation {
@@ -18,6 +22,7 @@ impl From<Reservation> for PublicReservation {
             space_id: encode_id(reservation.space_id),
             start_date: reservation.start_date,
             end_date: reservation.end_date,
+            status: reservation.status,
         }
     }
 }

@@ -3,12 +3,7 @@ CREATE TABLE spaces (
   user_id UUID NOT NULL,
   building_id INTEGER NOT NULL,
   name VARCHAR NOT NULL,
-  description TEXT,
-  max_vehicle_size VARCHAR NOT NULL,
-  coverage VARCHAR NOT NULL CHECK (coverage IN ('outdoor', 'outdoor-covered', 'indoor')), 
-  height_clearance_cm INTEGER, 
-  access_restrictions TEXT,  
-  parking_instructions TEXT,  
+  description TEXT NOT NULL,
   last_modified TIMESTAMP NOT NULL DEFAULT (NOW()),
   created_at TIMESTAMP NOT NULL DEFAULT (NOW()),
 
