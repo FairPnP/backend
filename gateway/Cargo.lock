@@ -632,6 +632,7 @@ dependencies = [
  "alcoholic_jwt",
  "async-trait",
  "env_logger",
+ "http 1.1.0",
  "log",
  "nanoid",
  "pingora",

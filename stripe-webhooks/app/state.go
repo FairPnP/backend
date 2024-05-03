@@ -9,7 +9,7 @@ import (
 
 type AppState struct {
 	DB         *sqlx.DB
-	httpClient *client.Client
+	HttpClient *client.Client
 }
 
 func CreateAppState(apiUrl string) (*AppState, error) {
@@ -22,7 +22,7 @@ func CreateAppState(apiUrl string) (*AppState, error) {
 
 	appState := &AppState{
 		DB:         dbpool,
-		httpClient: httpClient,
+		HttpClient: httpClient,
 	}
 
 	return appState, nil

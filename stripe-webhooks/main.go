@@ -19,9 +19,10 @@ func main() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 
-	// stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+	log.Info().Msg("Starting server...")
 
-	appState, err := app.CreateAppState()
+	apiUrl := os.Getenv("API_URL")
+	appState, err := app.CreateAppState(apiUrl)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error creating app state")
 	}

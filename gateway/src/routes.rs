@@ -30,10 +30,14 @@ pub fn get_route_map() -> RouteMap {
     route_map.add_route(&api_url, "/api/buildings/v1/{id}", vec!["GET"]);
 
     // chat
-    route_map.add_route(&api_url, "/api/chat/v1/host", vec!["GET"]);
-    route_map.add_route(&api_url, "/api/chat/v1/guest", vec!["GET"]);
-    route_map.add_route(&api_url, "/api/chat/v1/{reservation_id}", vec!["GET"]);
-    route_map.add_route(&api_url, "/api/chat/v1", vec!["POST"]);
+    route_map.add_route(&api_url, "/api/reservations/v1/chat/host", vec!["GET"]);
+    route_map.add_route(&api_url, "/api/reservations/v1/chat/guest", vec!["GET"]);
+    route_map.add_route(
+        &api_url,
+        "/api/reservations/v1/chat/{reservation_id}",
+        vec!["GET"],
+    );
+    route_map.add_route(&api_url, "/api/reservations/v1/chat", vec!["POST"]);
 
     // dev
     route_map.add_route(&api_url, "/api/dev/v1/reset-database/{db}", vec!["POST"]);

@@ -87,7 +87,7 @@ func (c *Client) Post(path string, reqObj any, resObj any) error {
 	return nil
 }
 
-func (c *Client) Put(path string, reqObj any, resObj any) error {
+func (c *Client) Put(path string, userId string, reqObj any, resObj any) error {
 	// Ensure the BaseURL is always correctly joined with the path.
 	fullURL, err := url.Parse(c.BaseURL)
 	if err != nil {
@@ -107,6 +107,7 @@ func (c *Client) Put(path string, reqObj any, resObj any) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Auth-User", userId)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
