@@ -5,10 +5,12 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     static ref HASHIDS: Harsh = {
+        let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         let salt = std::env::var("HASHIDS_SALT").expect("HASHIDS_SALT must be set");
         Harsh::builder()
             .length(10)
             .salt(salt)
+            .alphabet(alphabet)
             .build()
             .expect("Failed to build Harsh")
     };

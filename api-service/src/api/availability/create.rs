@@ -42,6 +42,32 @@ pub async fn create_availability(
     let data = validate_req_data(data.into_inner())?;
     let space_id = decode_id(&data.space_id)?;
 
+    if data.start_date >= data.end_date {
+        return Err(ServiceError::BadRequest(
+            "Start date must be before end date".to_string(),
+        ));
+    }
+
+    if data.start_date < chrono::Utc::now().naive_utc() {
+        return Err(ServiceError::BadRequest(
+            "Start date must be in the future".to_string(),
+        ));
+    }
+
+    let overlapping = AvailabilityDb::find_overlapping_availabilities(
+        &pool,
+        space_id,
+        data.start_date,
+        data.end_date,
+    )
+    .await?;
+
+    if !overlapping.is_empty() {
+        return Err(ServiceError::BadRequest(
+            "Availability overlaps with existing availability".to_string(),
+        ));
+    }
+
     let availability = AvailabilityDb::insert(
         &pool,
         user_id,

@@ -86,6 +86,28 @@ impl AvailabilityDb {
         Ok(availability)
     }
 
+    pub async fn find_overlapping_availabilities(
+        pool: &DbPool,
+        space_id: i32,
+        start_date: NaiveDateTime,
+        end_date: NaiveDateTime,
+    ) -> Result<Vec<Availability>, sqlx::Error> {
+        let query = "
+            SELECT * FROM availability
+            WHERE space_id = $1
+            AND NOT (end_date <= $2 OR start_date >= $3)
+            ORDER BY start_date ASC";
+
+        let overlapping_availabilities = sqlx::query_as::<_, Availability>(query)
+            .bind(space_id)
+            .bind(start_date)
+            .bind(end_date)
+            .fetch_all(pool)
+            .await?;
+
+        Ok(overlapping_availabilities)
+    }
+
     // ======================================================================
     // Update
 
