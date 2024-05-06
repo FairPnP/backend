@@ -14,7 +14,7 @@ pub struct Availability {
     pub space_id: i32,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
-    pub hourly_rate: BigDecimal,
+    pub price: BigDecimal,
     pub created_at: NaiveDateTime,
     pub last_modified: NaiveDateTime,
 }
@@ -48,5 +48,5 @@ pub struct AvailabilityResult {
     pub space_id: String,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
-    pub hourly_rate: BigDecimal,
+    pub price: BigDecimal,
 }

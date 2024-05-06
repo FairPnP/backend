@@ -20,7 +20,7 @@ use super::public::PublicAvailability;
 pub struct UpdateAvailabilityRequest {
     pub start_date: Option<NaiveDateTime>,
     pub end_date: Option<NaiveDateTime>,
-    pub hourly_rate: Option<BigDecimal>,
+    pub price: Option<BigDecimal>,
 }
 
 #[derive(Debug, Serialize)]
@@ -48,7 +48,7 @@ pub async fn update_availability(
         availability_id,
         data.start_date.to_owned(),
         data.end_date.to_owned(),
-        data.hourly_rate,
+        data.price,
     )
     .await?;
     Ok(HttpResponse::Ok().json(UpdateAvailabilityResponse {

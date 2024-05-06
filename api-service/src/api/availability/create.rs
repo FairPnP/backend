@@ -21,7 +21,7 @@ pub struct CreateAvailabilityRequest {
     pub space_id: String,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
-    pub hourly_rate: BigDecimal,
+    pub price: BigDecimal,
 }
 
 #[derive(Debug, Serialize)]
@@ -74,7 +74,7 @@ pub async fn create_availability(
         space_id,
         data.start_date,
         data.end_date,
-        data.hourly_rate,
+        data.price,
     )
     .await?;
     Ok(HttpResponse::Created().json(CreateAvailabilityResponse {

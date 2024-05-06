@@ -23,16 +23,16 @@ impl AvailabilityDb {
         space_id: i32,
         start_date: NaiveDateTime,
         end_date: NaiveDateTime,
-        hourly_rate: BigDecimal,
+        price: BigDecimal,
     ) -> Result<Availability, sqlx::Error> {
         let availability = sqlx::query_as::<_, Availability>(
-            "INSERT INTO availability (user_id, space_id, start_date, end_date, hourly_rate) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            "INSERT INTO availability (user_id, space_id, start_date, end_date, price) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         )
         .bind(user_id)
         .bind(space_id)
         .bind(start_date)
         .bind(end_date)
-        .bind(hourly_rate)
+        .bind(price)
         .fetch_one(pool)
         .await?;
 
@@ -117,14 +117,14 @@ impl AvailabilityDb {
         availability_id: i32,
         start_date: Option<NaiveDateTime>,
         end_date: Option<NaiveDateTime>,
-        hourly_rate: Option<BigDecimal>,
+        price: Option<BigDecimal>,
     ) -> Result<Availability, sqlx::Error> {
         let availability = sqlx::query_as::<_, Availability>(
-            "UPDATE availability SET start_date = COALESCE($1, start_date), end_date = COALESCE($2, end_date), hourly_rate = COALESCE($3, hourly_rate) WHERE id = $4 AND user_id = $5 RETURNING *",
+            "UPDATE availability SET start_date = COALESCE($1, start_date), end_date = COALESCE($2, end_date), price = COALESCE($3, price) WHERE id = $4 AND user_id = $5 RETURNING *",
         )
         .bind(start_date)
         .bind(end_date)
-        .bind(hourly_rate)
+        .bind(price)
         .bind(availability_id)
         .bind(user_id)
         .fetch_one(pool)
@@ -163,7 +163,7 @@ impl AvailabilityDb {
     ) -> Result<Vec<SearchResult>, sqlx::Error> {
         let query = "
             SELECT 
-                a.id as a_id, a.space_id as a_space_id, a.start_date as a_start_date, a.end_date as a_end_date, a.hourly_rate as a_hourly_rate,
+                a.id as a_id, a.space_id as a_space_id, a.start_date as a_start_date, a.end_date as a_end_date, a.price as a_price,
                 b.id as b_id, b.name as b_name, b.place_id as b_place_id, b.latitude as b_latitude, b.longitude as b_longitude,
                 s.id as s_id, s.building_id as s_building_id
             FROM buildings b
@@ -174,8 +174,6 @@ impl AvailabilityDb {
                 AND r.status IN ('confirmed', 'pending')
             WHERE b.latitude BETWEEN $3 - $5 AND $3 + $5
             AND b.longitude BETWEEN $4 - $6 AND $4 + $6
-            AND a.start_date <= $1
-            AND a.end_date >= $2
             AND r.id IS NULL";
 
         let rows = sqlx::query(query)
@@ -197,7 +195,7 @@ impl AvailabilityDb {
                 space_id: encode_id(row.try_get("a_space_id")?),
                 start_date: row.try_get("a_start_date")?,
                 end_date: row.try_get("a_end_date")?,
-                hourly_rate: row.try_get("a_hourly_rate")?,
+                price: row.try_get("a_price")?,
             };
 
             let building = BuildingResult {

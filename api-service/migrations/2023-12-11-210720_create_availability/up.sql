@@ -4,7 +4,7 @@ CREATE TABLE availability (
     space_id integer NOT NULL,
     start_date timestamp NOT NULL,
     end_date timestamp NOT NULL CHECK (end_date > start_date),
-    hourly_rate NUMERIC(10, 2) NOT NULL,
+    price NUMERIC(10, 2) NOT NULL,
     created_at timestamp NOT NULL DEFAULT NOW(),
     last_modified timestamp NOT NULL DEFAULT NOW()
 );

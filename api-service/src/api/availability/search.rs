@@ -92,7 +92,7 @@ pub async fn search_availability(
             space_id: availability.space_id,
             start_date: availability.start_date,
             end_date: availability.end_date,
-            hourly_rate: availability.hourly_rate,
+            price: availability.price,
         });
     }
 

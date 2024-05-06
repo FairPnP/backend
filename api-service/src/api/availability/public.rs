@@ -10,7 +10,7 @@ pub struct PublicAvailability {
     pub space_id: String,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
-    pub hourly_rate: BigDecimal,
+    pub price: BigDecimal,
 }
 
 impl From<Availability> for PublicAvailability {
@@ -20,7 +20,7 @@ impl From<Availability> for PublicAvailability {
             space_id: encode_id(availability.space_id),
             start_date: availability.start_date,
             end_date: availability.end_date,
-            hourly_rate: availability.hourly_rate,
+            price: availability.price,
         }
     }
 }
