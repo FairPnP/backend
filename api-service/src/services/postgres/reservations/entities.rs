@@ -31,11 +31,25 @@ impl fmt::Display for ReservationStatus {
     }
 }
 
+impl ReservationStatus {
+    pub fn from_str(s: &str) -> Result<Self, String> {
+        match s {
+            "pending" => Ok(ReservationStatus::Pending),
+            "confirmed" => Ok(ReservationStatus::Confirmed),
+            "failed" => Ok(ReservationStatus::Failed),
+            "cancelled" => Ok(ReservationStatus::Cancelled),
+            "timeout" => Ok(ReservationStatus::Timeout),
+            _ => Err(format!("Invalid reservation status: {}", s)),
+        }
+    }
+}
+
 #[derive(Debug, FromRow)]
 pub struct Reservation {
     pub id: i32,
     pub user_id: Uuid,
     pub space_id: i32,
+    pub availability_id: i32,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
     pub status: ReservationStatus,

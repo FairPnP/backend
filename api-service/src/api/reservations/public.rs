@@ -10,6 +10,7 @@ use crate::{
 pub struct PublicReservation {
     pub id: String,
     pub space_id: String,
+    pub availability_id: String,
     pub start_date: NaiveDateTime,
     pub end_date: NaiveDateTime,
     pub status: ReservationStatus,
@@ -20,6 +21,7 @@ impl From<Reservation> for PublicReservation {
         PublicReservation {
             id: encode_id(reservation.id),
             space_id: encode_id(reservation.space_id),
+            availability_id: encode_id(reservation.availability_id),
             start_date: reservation.start_date,
             end_date: reservation.end_date,
             status: reservation.status,

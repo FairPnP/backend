@@ -74,15 +74,7 @@ pub async fn list_reservations(
     let limit = query.limit.map_or(10, |l| if l > 20 { 20 } else { l });
     let offset_id = decode_id_option(&query.offset_id)?;
     let space_id = decode_id_option(&query.space_id)?;
-    let reservations = ReservationDb::list(
-        &pool,
-        offset_id,
-        limit,
-        user,
-        space_id,
-        Some(ReservationStatus::Confirmed),
-    )
-    .await?;
+    let reservations = ReservationDb::list(&pool, offset_id, limit, user, space_id, None).await?;
     let next_offset_id = if reservations.len() as i32 == limit {
         reservations.last().map(|b| encode_id(b.id))
     } else {

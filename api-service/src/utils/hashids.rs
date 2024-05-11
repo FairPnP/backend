@@ -8,7 +8,7 @@ lazy_static! {
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         let salt = std::env::var("HASHIDS_SALT").expect("HASHIDS_SALT must be set");
         Harsh::builder()
-            .length(10)
+            .length(12)
             .salt(salt)
             .alphabet(alphabet)
             .build()

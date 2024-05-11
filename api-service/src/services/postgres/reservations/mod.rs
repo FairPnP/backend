@@ -17,17 +17,19 @@ impl ReservationDb {
         pool: &DbPool,
         user_id: Uuid,
         space_id: i32,
+        availability_id: i32,
         start_date: NaiveDateTime,
         end_date: NaiveDateTime,
     ) -> Result<Reservation, sqlx::Error> {
         let reservation = sqlx::query_as::<_, Reservation>(
-            "INSERT INTO reservations (user_id, space_id, start_date, end_date, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            "INSERT INTO reservations (user_id, space_id, availability_id, start_date, end_date, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
         )
         .bind(user_id)
         .bind(space_id)
+        .bind(availability_id)
         .bind(start_date)
         .bind(end_date)
-        .bind(ReservationStatus::Pending)
+        .bind(ReservationStatus::Confirmed)
         .fetch_one(pool)
         .await?;
 
